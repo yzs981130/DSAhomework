@@ -1,28 +1,23 @@
-#include <iostream>
-#include <string>
+#include<iostream> 
 using namespace std;
-int main() 
+int stackNum(int n, int pop, int push) 
 {
-	int cnt;
-	string str;
-	cin >> cnt;
-	cin.ignore();
-	while(cnt--)
+	if(push == n)return 1;
+	if(push < pop)return 0;
+	else if(push == pop) return stackNum(n, pop, push + 1);
+	else if (pop < push) 
 	{
-		getline(cin, str);
-		for (int i = 0; i < str.length(); i++)
-		{
-			if ((str[i] < 'z' && str[i] >= 'a') || (str[i] < 'Z' && str[i] >= 'A'))
-				cout << char(str[i] + 1);
-			else if (str[i] == 'z')
-				cout << 'a';
-			else if (str[i] == 'Z')
-				cout << 'A';
-			else
-				cout << str[i];
-		}
-		cout << endl;
+		int num1 = 0;
+		int num2 = 0;
+		num1 = stackNum(n, pop + 1, push);
+		num2 = stackNum(n, pop, push + 1);
+		return num1 + num2;
 	}
+}
+int main() {
+	int n;
+	cin >> n;
+	cout << stackNum(n, 0, 0) << endl;
 	system("pause");
 	return 0;
 }
