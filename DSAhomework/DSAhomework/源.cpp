@@ -1,56 +1,83 @@
 #include <iostream> 
 using namespace std;
-
-struct monkey
-{
-	int num;
-	monkey *next;
+struct item {
+	int k, ex;
+	item *next;
 };
+item equalmark;
 
-int joseph(int sum, int cycle)
+item *search(item *current, item *head)
 {
-	int i;
-	monkey *p_old, *p_new, *head = NULL;
-
-	head = new monkey;
-	head->num = 1;
-	p_old = head;
-	for (i = 2; i <= sum; i++)
+	while (head->next != NULL)
 	{
-		p_new = new monkey;
-		p_new->num = i;
-		p_old->next = p_new;
-		p_old = p_new;
-	}
-	p_old->next = head;
-
-	p_old = head;
-	i = 1;
-	while (1)
-	{
-		p_new = p_old->next;
-		i++;
-		if (p_new->num == p_old->num)
-			break;
-		if ((i % cycle) == 0)
+		if (current->ex == head->next->ex)
 		{
-			p_old->next = p_new->next;
-			p_old = p_old->next;
-			delete p_new;
-			i = 1;
+			head->next->k += current->k;
+			delete current;
+			return &equalmark;
 		}
-		else
-			p_old = p_new;
+		if (current->ex > head->next->ex)
+			break;
+		head = head->next;
 	}
-
-	return p_new->num;
+	return head;
 }
 
 int main()
 {
-	int n, m;
-	cin >> n >> m;
-	cout << joseph(n, m) << endl;
+	int inputnum;
+	cin >> inputnum;
+	while (inputnum--)
+	{
+		item *head = NULL, *current = NULL;
+		int k, ex;
+		for (int i = 0; i <= 1; i++)
+		{
+			while (cin >> k >> ex, ex >= 0)
+			{
+				current = new item;
+				current->k = k, current->ex = ex, current->next = NULL;
+				if (head == NULL)
+					head = current;
+				else if (current->ex > head->ex)
+				{
+					current->next = head;
+					head = current;
+				}
+				else if (current->ex == head->ex)
+				{
+					head->k += current->k;
+					delete current;
+				}
+				else
+				{
+					item *temp = search(current, head);
+					if (temp != &equalmark)
+					{
+						current->next = temp->next;
+						temp->next = current;
+					}
+				}
+			}
+		}
+		current = head;
+		while (current->next != NULL)
+		{
+			if (current->k != 0)
+				cout << "[ " << current->k << ' ' << current->ex << " ] ";
+			current = current->next;
+		}
+		if (current->k != 0)
+			cout << "[ " << current->k << ' ' << current->ex << " ] "; 
+		if (inputnum > 0)
+			cout << endl;
+		while (head != NULL)
+		{
+			item *temp = head->next;
+			delete head;
+			head = temp;
+		}
+	}
 	system("pause");
 	return 0;
 }
