@@ -1,30 +1,28 @@
-#include <iostream>  
-#include <map>  
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
-
-int main() {
-	int n;
-	cin >> n;
-	for (int i = 0; i != n; ++i) {
-		map <int, int> p;
-		int ex, value, cnt = 0;
-		while (cin >> value >> ex) {
-			if (ex < 0)
-				cnt++;
-			else 
-			{
-				pair <map <int, int>::iterator, bool> ret = p.insert(make_pair(ex, value));
-				if (!ret.second)
-					ret.first->second += value;
+int main() 
+{
+	string a, b;
+	cin >> a >> b;
+	int an = a.size(), bn = b.size();
+	vector< int > v(an + bn);
+	for (int i = 0; i < an; ++i)
+		for (int j = 0; j < bn; ++j) {
+			v[i + j] += (a[an - 1 - i] - '0') * (b[bn - 1 - j] - '0');
+			if (v[i + j] >= 10) {
+				v[i + j + 1] += v[i + j] / 10;
+				v[i + j] %= 10;
 			}
-			if (cnt == 2)
-				break;
 		}
-		for (map <int, int>::reverse_iterator riter = p.rbegin(); riter != p.rend(); ++riter)
-			if (riter->second != 0)
-				cout << "[ " << riter->second << ' ' << riter->first << " ] ";
-		cout << endl;
-	}
+	int cn = an + bn - 1;
+	if (v[cn]) ++cn;
+	while (cn > 1 && 0 == v[cn - 1]) --cn;
+	string res = "";
+	for (int i = cn - 1; i >= 0; --i)
+		res += char(v[i] + '0');
+	cout << res << endl;
 	system("pause");
 	return 0;
 }
