@@ -1,28 +1,28 @@
 #include <iostream>
 #include <string>
-#include <vector>
 using namespace std;
 int main() 
 {
-	string a, b;
-	cin >> a >> b;
-	int an = a.size(), bn = b.size();
-	vector< int > v(an + bn);
-	for (int i = 0; i < an; ++i)
-		for (int j = 0; j < bn; ++j) {
-			v[i + j] += (a[an - 1 - i] - '0') * (b[bn - 1 - j] - '0');
-			if (v[i + j] >= 10) {
-				v[i + j + 1] += v[i + j] / 10;
-				v[i + j] %= 10;
-			}
+	int cnt;
+	string str;
+	cin >> cnt;
+	cin.ignore();
+	while(cnt--)
+	{
+		getline(cin, str);
+		for (int i = 0; i < str.length(); i++)
+		{
+			if ((str[i] < 'z' && str[i] >= 'a') || (str[i] < 'Z' && str[i] >= 'A'))
+				cout << char(str[i] + 1);
+			else if (str[i] == 'z')
+				cout << 'a';
+			else if (str[i] == 'Z')
+				cout << 'A';
+			else
+				cout << str[i];
 		}
-	int cn = an + bn - 1;
-	if (v[cn]) ++cn;
-	while (cn > 1 && 0 == v[cn - 1]) --cn;
-	string res = "";
-	for (int i = cn - 1; i >= 0; --i)
-		res += char(v[i] + '0');
-	cout << res << endl;
+		cout << endl;
+	}
 	system("pause");
 	return 0;
 }
