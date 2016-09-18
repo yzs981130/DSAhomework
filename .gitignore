@@ -3,3 +3,7 @@
 ################################################################################
 
 *.tlog
+*.log
+/DSAhomework/Debug
+/DSAhomework/DSAhomework/Debug
+*.opendb
