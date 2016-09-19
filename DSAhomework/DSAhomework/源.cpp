@@ -1,23 +1,19 @@
-#include<iostream> 
+#include <iostream>
+#include <string>
 using namespace std;
-int stackNum(int n, int pop, int push) 
+int main() 
 {
-	if(push == n)return 1;
-	if(push < pop)return 0;
-	else if(push == pop) return stackNum(n, pop, push + 1);
-	else if (pop < push) 
+	string str, substr;
+	while(cin >> str >> substr)
 	{
-		int num1 = 0;
-		int num2 = 0;
-		num1 = stackNum(n, pop + 1, push);
-		num2 = stackNum(n, pop, push + 1);
-		return num1 + num2;
+		char max_c = str[0];
+		for (int i = 1; i < str.length(); i++)
+			if (str[i] > max_c)
+				max_c = str[i];
+		int pos = str.find(max_c);
+		str.insert(pos + 1, substr);
+		cout << str << endl;
 	}
-}
-int main() {
-	int n;
-	cin >> n;
-	cout << stackNum(n, 0, 0) << endl;
 	system("pause");
 	return 0;
 }
