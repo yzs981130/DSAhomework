@@ -1,75 +1,113 @@
-#define  _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <cstring>
-#include <stdio.h>
-#include <stack>
-#define N 100
 using namespace std;
-void init(char s[])
+#define MAXN 100010
+
+struct Node
 {
-	char *p = s;
-	char temp[N], *p1 = temp;
-	while (*p != '\0')
-	{
-		while (((*p == ' ') || (*p == '\t')) && (*p != '\0')) 
-			*p++;
-		*p1 = *p;
-		p1++;
-		p++;
-	}
-	*p1 = '\0';
-	strcpy(s, temp);
-}
-int cal(char s[], int t, int n)
+	int L, R;
+	long long add, value;
+} tree[MAXN * 4];
+long long arr[MAXN], sum = 0;
+
+void Update(int);
+void Build(int id, int l, int r)
 {
-	if (n < t) return 0;
-	if (n == t)
+	tree[id].L = l;
+	tree[id].R = r;
+	tree[id].add = 0;
+	if (l == r)
 	{
-		if (s[t] >= 'A' && s[t] <= 'Z') 
-			return (s[t] - 'A');
-		else if (s[t] >= 'a' && s[t] <= 'z') 
-			return (s[t] - 'a');
-		else 
-			return s[t] - '0';
+		tree[id].value = arr[l]; 
+		return;
 	}
-	int f1 = -1, f2 = -1;
-	int flag = 0;
-	for (int i = t; i <= n; i++)
-	{
-		if (s[i] == '(') 
-			flag++;
-		else if (s[i] == ')') 
-			flag--;
-		else if ((s[i] == '+' || s[i] == '-') && flag == 0) 
-			f1 = i;
-		else if (s[i] == '*' && flag == 0) f2 = i;
-	}
-	if (f1 < 0 && f2 < 0) 
-		return cal(s, t + 1, n - 1);
-	if (f1 > 0)
-	{
-		if (s[f1] == '+') 
-			return cal(s, t, f1 - 1) + cal(s, f1 + 1, n);
-		else 
-			return cal(s, t, f1 - 1) - cal(s, f1 + 1, n);
-	}
-	else 
-		return cal(s, t, f2 - 1) * cal(s, f2 + 1, n);
+	int mid = (l + r) >> 1;
+	Build(id << 1, l, mid);
+	Build((id << 1) + 1, mid + 1, r);
+	tree[id].value = tree[id << 1].value + tree[(id << 1) + 1].value;
 }
+void Add(int id, int l, int r, long long v)
+{
+	if (l <= tree[id].L && tree[id].R <= r)
+	{
+		tree[id].add += v;
+		tree[id].value += v*(tree[id].R - tree[id].L + 1);
+		return;
+	}
+	Update(id);
+	if (tree[id].L == tree[id].R) { return; }
+	int mid = (tree[id].L + tree[id].R) >> 1;
+	if (l > mid) 
+		Add((id << 1) + 1, l, r, v);
+	else if (r <= mid) 
+		Add(id << 1, l, r, v);
+	else
+	{
+		Add(id << 1, l, mid, v);
+		Add((id << 1) + 1, mid + 1, r, v);
+	}
+	tree[id].value = tree[id << 1].value + tree[(id << 1) + 1].value;
+}
+void Update(int node)//小区间的值加上增量
+{
+	if (tree[node].add)
+	{
+		tree[node << 1].add += tree[node].add;
+		tree[(node << 1) + 1].add += tree[node].add;
+		tree[node << 1].value += (tree[node << 1].R - tree[node << 1].L + 1)*tree[node].add;
+		tree[(node << 1) + 1].value += (tree[(node << 1) + 1].R - tree[(node << 1) + 1].L + 1)*tree[node].add;
+		tree[node].add = 0;
+	}
+}//本节点区间的和实际上是value+add*(R-L+1)
+void Solve(int id, int l, int r)//类似Add
+{
+	if (l <= tree[id].L && tree[id].R <= r)
+	{
+		sum += tree[id].value;
+		return;
+	}
+	Update(id);
+
+	if (tree[id].L == tree[id].R) 
+		return;
+	int mid = (tree[id].L + tree[id].R) >> 1;
+	if (l > mid) 
+		Solve((id << 1) + 1, l, r);
+	else if (r <= mid) 
+		Solve(id << 1, l, r);
+	else
+	{
+		Solve(id << 1, l, mid);
+		Solve((id << 1) + 1, mid + 1, r);
+	}
+
+}
+
 int main() 
 {
-	int cnt;
-	cin >> cnt;
-	cin.ignore();
-	while(cnt--)
+	std::ios::sync_with_stdio(false);
+	cin.tie(0);
+	int n, q, l, r;
+	cin >> n >> q;
+	for (int i = 1; i <= n; i++)
+		cin >> arr[i];
+	Build(1, 1, n);
+	char c;
+	while(q--)
 	{
-		char str1[N], str2[N];
-		gets_s(str1);
-		gets_s(str2);
-		init(str1);
-		init(str2);
-		int a = cal(str1, 0, strlen(str1) - 1), b = cal(str2, 0, strlen(str2) - 1);
-		cout << ((a == b) ? "YES" : "NO") << endl;
+		cin >> c;
+		if(c == 'Q')
+		{
+			cin >> l >> r;
+			sum = 0;
+			Solve(1, l, r);
+			cout << sum << endl;
+		}
+		else
+		{
+			long long v;
+			cin >> l >> r >> v;
+			Add(1, l, r, v);
+		}
 	}
 	system("pause");
 	return 0;
