@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 using namespace std;
 #define MAXN 100010
@@ -84,20 +85,18 @@ void Solve(int id, int l, int r)//ÀàËÆAdd
 
 int main() 
 {
-	std::ios::sync_with_stdio(false);
-	cin.tie(0);
 	int n, q, l, r;
-	cin >> n >> q;
+	scanf("%d %d", &n, &q);
 	for (int i = 1; i <= n; i++)
-		cin >> arr[i];
+		scanf("%lld", arr + i);
 	Build(1, 1, n);
-	char c;
+	char c[2];
 	while(q--)
 	{
-		cin >> c;
-		if(c == 'Q')
+		scanf("%s", c);
+		if(c[0] == 'Q')
 		{
-			cin >> l >> r;
+			scanf("%d %d", &l, &r);
 			sum = 0;
 			Solve(1, l, r);
 			cout << sum << endl;
@@ -105,7 +104,7 @@ int main()
 		else
 		{
 			long long v;
-			cin >> l >> r >> v;
+			scanf("%d %d %lld", &l, &r, &v);
 			Add(1, l, r, v);
 		}
 	}
