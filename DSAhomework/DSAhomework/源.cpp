@@ -1,44 +1,58 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <cstdio>
+#include <sstream>
 #include <string>
-#include <cstring>
 using namespace std;
-#define MAXN 1000010
-char s[MAXN];
-int Next[MAXN];
+#define MAXN 100010
+int innerOrder[MAXN], backOrder[MAXN], d[MAXN];;
+struct BNode
+{
+	int value;
+	BNode *Left;
+	BNode *Right;
+};
+BNode *build(int _innerStart, int _innerEnd, int _backStart, int _backEnd)
+{
+	BNode *root = new BNode;
+	root->value = backOrder[_backEnd];
+	int n = 0;
+	while (innerOrder[_innerStart + n] != root->value && n < MAXN)
+		n++;
+	if (n)
+		root->Left = build(_innerStart, _innerStart + n - 1, _backStart, _backStart + n - 1);
+	else
+		root->Left = nullptr;
+	if (_innerStart + n < _innerEnd)
+		root->Right = build(_innerStart + n + 1, _innerEnd, _backStart + n, _backEnd - 1);
+	else
+		root->Right = nullptr;
+	return root;
+}
+void Travel(BNode *root)
+{
+	if (root)
+	{
+		cout << root->value << ' ';
+		Travel(root->Left);
+		Travel(root->Right);
+	}
+}
 int main()
 {
-	int len, t = 1;
-	string str;
-	while(scanf("%d", &len) && len != 0)
+	int i = 0;
+	while (cin >> innerOrder[i++])
 	{
-		memset(s, 0, sizeof(s));
-		memset(Next, 0, sizeof(Next));
-		scanf("%s", s);
-		Next[0] = -1;
-		int j = 0, k = -1;
-		while(j < len)
-		{
-			if (k == -1 || s[j] == s[k])
-			{
-				++j;
-				++k;
-				Next[j] = k;
-			}
-			else
-				k = Next[k];
-		}
-		printf("Test case #%d\n", t);
-		++t;
-		for (int i = 2; i <= len; ++i)
-		{
-			j = i - Next[i];
-			if (i % j == 0 && i > j)
-				printf("%d %d\n", i, i / j);
-		}
-		printf("\n");
+		if (cin.get() != ' ')   //遇到回车则停止输入  
+			break;
 	}
+	i = 0;
+	while (cin >> backOrder[i++])
+	{
+		if (cin.get() != ' ')   //遇到回车则停止输入  
+			break;
+	}
+	BNode *root = build(0, i - 1, 0, i - 1);
+	Travel(root);
 	system("pause");
 	return 0;
 }
