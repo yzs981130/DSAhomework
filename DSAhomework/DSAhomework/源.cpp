@@ -1,76 +1,106 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <stdio.h>
-#include <algorithm>
+#include <string>
+#include <cstring>
+#include <stack>
 using namespace std;
-#define MAXSIZE 100000 
-struct data
+#define MAXSIZE 100000
+struct Node
 {
-	int size;
-	int heap[1000005];
-	void swim(int x)
+	char c;
+	bool flag;
+	int depth;
+	Node *L;
+	Node *R;
+};
+Node* BuildTree()
+{
+	string s;
+	int len, top = 1;
+	stack<Node*> Stack;
+	cin >> s;
+	Node *root = new Node;
+	root->c = s[0];
+	root->L = nullptr;
+	root->R = nullptr;
+	root->depth = 0;
+	root->flag = false;
+	Stack.push(root);
+	while (cin >> s && s != "0")
 	{
-		while (x>1)
+		len = s.length();
+		Node *new_Node = new Node;
+		new_Node->c = s[len - 1];
+		new_Node->L = nullptr;
+		new_Node->R = nullptr;
+		new_Node->depth = len - 1;
+		new_Node->flag = false;
+
+		Node *r = Stack.top();
+		while (new_Node->depth - r->depth != 1)
 		{
-			if (heap[x] < heap[x >> 1])
-				swap(heap[x], heap[x >> 1]);
-			else break;
-			x >>= 1;
+			Stack.pop();
+			r = Stack.top();
 		}
-	}
-	void sink(int x)
-	{
-		int mn = x;
-		int l = (x << 1), r = ((x << 1) + 1);
-		if (l <= size && heap[l] < heap[mn])
-			mn = l;
-		if (r <= size && heap[r] < heap[mn])
-			mn = r;
-		if (mn != x)
+		if (new_Node->c == '*')
 		{
-			swap(heap[mn], heap[x]);
-			sink(mn);
+			r->flag = true;
+			continue;
 		}
+
+		if (!r->flag)
+		{
+			r->L = new_Node;
+			r->flag = true;
+		}
+		else if (r->flag)
+			r->R = new_Node;
+
+		Stack.push(new_Node);
 	}
-	void push(int a)
+	return root;
+}
+void PreOrder(Node *root)
+{
+	if (root)
 	{
-		heap[++size] = a;
-		swim(size);
+		cout << root->c;
+		PreOrder(root->L);
+		PreOrder(root->R);
 	}
-	void pop()
+}
+void InOrder(Node *root)
+{
+	if (root)
 	{
-		heap[1] = heap[size--];
-		sink(1);
+		InOrder(root->L);
+		cout << root->c;
+		InOrder(root->R);
 	}
-	void clear()
+}
+void PostOrder(Node *root)
+{
+	if (root)
 	{
-		size = 0;
-		memset(heap, 0, sizeof(heap));
+		PostOrder(root->L);
+		PostOrder(root->R);
+		cout << root->c;
 	}
-}q;
+}
 int main()
 {
-	int n, T;
-	scanf("%d", &T);
-	while (T--)
+	int n;
+	scanf("%d", &n);
+	while(n--)
 	{
-		q.clear();
-		scanf("%d", &n);
-		for (int i = 1; i <= n; i++)
-		{
-			int opt, x;
-			scanf("%d", &opt);
-			if (opt == 1)
-			{
-				scanf("%d", &x);
-				q.push(x);
-			}
-			else
-			{
-				printf("%d\n", q.heap[1]);
-				q.pop();
-			}
-		}
+		Node *root = BuildTree();
+		PreOrder(root);
+		cout << endl;
+		PostOrder(root);
+		cout << endl;
+		InOrder(root);
+		cout << endl;
+		cout << endl;
 	}
 	system("pause");
 	return 0;
