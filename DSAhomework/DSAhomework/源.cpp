@@ -1,107 +1,82 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <stack>
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+#define lowbit(x) (x&(-x))
 using namespace std;
-#define MAXSIZE 100000
-struct Node
-{
-	char c;
-	bool flag;
-	int depth;
-	Node *L;
-	Node *R;
-};
-Node* BuildTree()
-{
-	string s;
-	int len, top = 1;
-	stack<Node*> Stack;
-	cin >> s;
-	Node *root = new Node;
-	root->c = s[0];
-	root->L = nullptr;
-	root->R = nullptr;
-	root->depth = 0;
-	root->flag = false;
-	Stack.push(root);
-	while (cin >> s && s != "0")
-	{
-		len = s.length();
-		Node *new_Node = new Node;
-		new_Node->c = s[len - 1];
-		new_Node->L = nullptr;
-		new_Node->R = nullptr;
-		new_Node->depth = len - 1;
-		new_Node->flag = false;
+const int MAX = 100005;
 
-		Node *r = Stack.top();
-		while (new_Node->depth - r->depth != 1)
-		{
-			Stack.pop();
-			r = Stack.top();
-		}
-		if (new_Node->c == '*')
-		{
-			r->flag = true;
-			continue;
-		}
+struct Data 
+{
+	int id, s, e;
+}pre, cow[MAX];
+int n, maxVal, ar[MAX];
 
-		if (!r->flag)
-		{
-			r->L = new_Node;
-			r->flag = true;
-		}
-		else if (r->flag)
-			r->R = new_Node;
+bool cmp(Data a, Data b) 
+{
+	if (a.e == b.e) 
+		return a.s < b.s;
+	return a.e > b.e;
+}
 
-		Stack.push(new_Node);
-	}
-	return root;
-}
-void PreOrder(Node *root)
+void add(int i) 
 {
-	if (root)
+	while (i <= maxVal) 
 	{
-		cout << root->c;
-		PreOrder(root->L);
-		PreOrder(root->R);
+		ar[i] += 1;
+		i += lowbit(i);
 	}
 }
-void InOrder(Node *root)
+
+int sum(int i) 
 {
-	if (root)
+	int ans = 0;
+	while (i > 0) 
 	{
-		InOrder(root->L);
-		cout << root->c;
-		InOrder(root->R);
+		ans += ar[i];
+		i -= lowbit(i);
 	}
+	return ans;
 }
-void PostOrder(Node *root)
+
+int main() 
 {
-	if (root)
+	int i, s, e, ans[MAX];
+	while (scanf("%d", &n) && n) 
 	{
-		PostOrder(root->L);
-		PostOrder(root->R);
-		cout << root->c;
+		memset(ar, 0, sizeof(ar));
+		maxVal = 0;
+		for (i = 0; i < n; i++) 
+		{
+			scanf("%d%d", &s, &e);
+			s++;
+			e++;
+			cow[i].s = s;
+			cow[i].e = e;
+			cow[i].id = i;
+			if (maxVal < cow[i].s)
+				maxVal = cow[i].s;
+		}
+		sort(cow, cow + n, cmp);
+		int cnt = 0;
+		pre.e = pre.s = -1;
+		for (i = 0; i < n; i++) 
+		{
+			if (cow[i].s == pre.s && cow[i].e == pre.e) 
+				cnt++;//牛相同直接赋值
+			else 
+			{
+				cnt = 0;
+				pre.s = cow[i].s;
+				pre.e = cow[i].e;
+			}
+			ans[cow[i].id] = sum(cow[i].s) - cnt;
+			add(cow[i].s);
+		}
+		for (i = 0; i < n - 1; i++)
+			printf("%d ", ans[i]);
+		printf("%d\n", ans[i]);
 	}
-}
-int main()
-{
-	int n;
-	scanf("%d", &n);
-	while(n--)
-	{
-		Node *root = BuildTree();
-		PreOrder(root);
-		cout << endl;
-		PostOrder(root);
-		cout << endl;
-		InOrder(root);
-		cout << endl;
-		cout << endl;
-	}
-	system("pause");
 	return 0;
 }
