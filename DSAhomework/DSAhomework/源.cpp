@@ -1,38 +1,36 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
+#include<algorithm>
 #include<cstdio>
 #include<cstring>
-#include<algorithm>
 #define lowbit(x) (x&(-x))
 using namespace std;
-const int MAX = 100005;
+const int MAX = 500005;
 
-struct Data 
+struct Data
 {
-	int id, s, e;
-}pre, cow[MAX];
-int n, maxVal, ar[MAX];
+	int id, w;
+}num[MAX];
+int n, ar[MAX];
 
-bool cmp(Data a, Data b) 
+bool cmp(Data a, Data b)
 {
-	if (a.e == b.e) 
-		return a.s < b.s;
-	return a.e > b.e;
+	return a.w > b.w;
 }
 
-void add(int i) 
+void add(int i)
 {
-	while (i <= maxVal) 
+	while (i <= n)
 	{
 		ar[i] += 1;
 		i += lowbit(i);
 	}
 }
 
-int sum(int i) 
+long long sum(int i)
 {
-	int ans = 0;
-	while (i > 0) 
+	long long ans = 0;
+	while (i)
 	{
 		ans += ar[i];
 		i -= lowbit(i);
@@ -40,43 +38,25 @@ int sum(int i)
 	return ans;
 }
 
-int main() 
+int main()
 {
-	int i, s, e, ans[MAX];
-	while (scanf("%d", &n) && n) 
+	int i;
+	while (scanf("%d", &n) && n)
 	{
 		memset(ar, 0, sizeof(ar));
-		maxVal = 0;
-		for (i = 0; i < n; i++) 
+		for (i = 0; i < n; i++)
 		{
-			scanf("%d%d", &s, &e);
-			s++;
-			e++;
-			cow[i].s = s;
-			cow[i].e = e;
-			cow[i].id = i;
-			if (maxVal < cow[i].s)
-				maxVal = cow[i].s;
+			num[i].id = i + 1;
+			scanf("%d", &num[i].w);
 		}
-		sort(cow, cow + n, cmp);
-		int cnt = 0;
-		pre.e = pre.s = -1;
-		for (i = 0; i < n; i++) 
+		sort(num, num + n, cmp);
+		long long ans = 0;
+		for (i = 0; i < n; i++)
 		{
-			if (cow[i].s == pre.s && cow[i].e == pre.e) 
-				cnt++;//牛相同直接赋值
-			else 
-			{
-				cnt = 0;
-				pre.s = cow[i].s;
-				pre.e = cow[i].e;
-			}
-			ans[cow[i].id] = sum(cow[i].s) - cnt;
-			add(cow[i].s);
+			ans += sum(num[i].id - 1);
+			add(num[i].id);
 		}
-		for (i = 0; i < n - 1; i++)
-			printf("%d ", ans[i]);
-		printf("%d\n", ans[i]);
+		printf("%lld\n", ans);
 	}
 	return 0;
 }
