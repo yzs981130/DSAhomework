@@ -1,62 +1,28 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<iostream>
-#include<algorithm>
+#include<queue>
 #include<cstdio>
-#include<cstring>
-#define lowbit(x) (x&(-x))
+#include <iostream>
+#include <functional>
 using namespace std;
-const int MAX = 500005;
-
-struct Data
-{
-	int id, w;
-}num[MAX];
-int n, ar[MAX];
-
-bool cmp(Data a, Data b)
-{
-	return a.w > b.w;
-}
-
-void add(int i)
-{
-	while (i <= n)
-	{
-		ar[i] += 1;
-		i += lowbit(i);
-	}
-}
-
-long long sum(int i)
-{
-	long long ans = 0;
-	while (i)
-	{
-		ans += ar[i];
-		i -= lowbit(i);
-	}
-	return ans;
-}
-
+int n, tmp, ans;
+priority_queue<int, vector<int>, greater<int> >q;
 int main()
 {
-	int i;
-	while (scanf("%d", &n) && n)
+	scanf("%d", &n);
+	for (int i = 0; i < n; i++)
 	{
-		memset(ar, 0, sizeof(ar));
-		for (i = 0; i < n; i++)
-		{
-			num[i].id = i + 1;
-			scanf("%d", &num[i].w);
-		}
-		sort(num, num + n, cmp);
-		long long ans = 0;
-		for (i = 0; i < n; i++)
-		{
-			ans += sum(num[i].id - 1);
-			add(num[i].id);
-		}
-		printf("%lld\n", ans);
+		scanf("%d", &tmp);
+		q.push(tmp);
 	}
+	while (q.size() != 1)
+	{
+		int a, b;
+		a = q.top(); q.pop();
+		b = q.top(); q.pop();
+		ans += (a + b);
+		q.push(a + b);
+	}
+	cout << ans;
+	system("pause");
 	return 0;
 }
