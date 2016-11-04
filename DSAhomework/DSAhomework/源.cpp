@@ -1,28 +1,50 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include<queue>
-#include<cstdio>
-#include <iostream>
-#include <functional>
+#include<iostream> 
 using namespace std;
-int n, tmp, ans;
-priority_queue<int, vector<int>, greater<int> >q;
+struct node
+{
+	int key;
+	node *left;
+	node *right;
+	node(int k)
+	{
+		key = k;
+		left = NULL;
+		right = NULL;
+	}
+};
+//向二叉搜索树插入元素(insert an element to the binary search tree) 
+void insert(node *root, int n)
+{
+	if (n<root->key)
+	{
+		if (root->left == NULL)
+			root->left = new node(n);
+		else insert(root->left, n);
+	}
+	else if (n>root->key)
+	{
+		if (root->right == NULL)
+			root->right = new node(n);
+		else insert(root->right, n);
+	}
+}
+//前根遍历(get the preorder sequence) 
+void preorder(node *root)
+{
+	if (root == NULL)
+		return;
+	cout << root->key << ' ';
+	preorder(root->left);
+	preorder(root->right);
+}
 int main()
 {
-	scanf("%d", &n);
-	for (int i = 0; i < n; i++)
-	{
-		scanf("%d", &tmp);
-		q.push(tmp);
-	}
-	while (q.size() != 1)
-	{
-		int a, b;
-		a = q.top(); q.pop();
-		b = q.top(); q.pop();
-		ans += (a + b);
-		q.push(a + b);
-	}
-	cout << ans;
+	int n;
+	cin >> n;
+	node *root = new node(n);
+	while (cin >> n)
+		insert(root, n);
+	preorder(root);
 	system("pause");
 	return 0;
 }
