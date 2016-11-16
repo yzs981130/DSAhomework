@@ -1,56 +1,84 @@
-#include <iostream>
+#include<iostream>
+#include<map>
+#include<string>
 using namespace std;
-int p[150010];
-int find(int x)
+map<string, int> sour;
+map<int, string> original;
+int p, q, r;
+#define maxn 40
+#define infi 1000000;
+struct dist
 {
-	if (p[x] == x)
-		return x;
-	p[x] = find(p[x]);
-	return p[x];
-}
-void unite(int x, int y)
+	int len;
+	int pre;
+};
+dist D[maxn][maxn];
+void output(int s, int e)
 {
-	int u, v;
-	u = find(x);
-	v = find(y);
-	if (u != v) 
-		p[u] = v;
+	if (s == e)
+	{
+		cout << original[s];
+		return;
+	}
+	output(s, D[s][e].pre);
+	cout << "->" << '(' << D[D[s][e].pre][e].len << ')' << "->" << original[e];
 }
 int main()
 {
-	int i, n, k, d, x, y, ans = 0;
-	cin >> n >> k;
-	for (i = 1; i <= 3 * n; i++) 
-		p[i] = i;
-	while (k--)
+	string tem;
+	cin >> p;
+	for (int i = 0; i < p; i++)
 	{
-		cin >> d >> x >> y;
-		if (x > n || y > n) 
-			ans++;
-		else if (d == 1)
+		cin >> tem;
+		sour.insert(pair<string, int>(tem, i));
+		original.insert(pair<int, string>(i, tem));
+	}
+
+	for (int i = 0; i < p; i++)
+		for (int j = 0; j < p; j++)
 		{
-			if (find(x) == find(y + n) || find(x) == find(y + 2 * n)) 
-				ans++;
+			if (i != j)
+			{
+				D[i][j].len = infi;
+				D[i][j].pre = -1;
+			}
 			else
 			{
-				unite(x, y);
-				unite(x + n, y + n);
-				unite(x + 2 * n, y + 2 * n);
+				D[i][j].len = 0;
+				D[i][j].pre = i;
 			}
 		}
-		else if(d == 2)
+	cin >> q;
+	string fol1, fol2;
+	int len;
+
+	for (int i = 0; i < q; i++)
+	{
+		cin >> fol1 >> fol2 >> len;
+		if (D[sour[fol1]][sour[fol2]].len>len)
 		{
-			if (find(x) == find(y) || find(x) == find(y + 2 * n)) 
-				ans++;
-			else
-			{
-				unite(x, y + n);
-				unite(x + n, y + 2 * n);
-				unite(x + 2 * n, y);
-			}
+			D[sour[fol1]][sour[fol2]].len = len;
+			D[sour[fol1]][sour[fol2]].pre = sour[fol1];
+			D[sour[fol2]][sour[fol1]].len = len;
+			D[sour[fol2]][sour[fol1]].pre = sour[fol2];
 		}
 	}
-	cout << ans << endl;
+	
+	for (int g = 0; g < p; g++)
+		for (int i = 0; i < p; i++)
+			for (int j = 0; j < p; j++)
+				if (D[i][j].len > D[i][g].len + D[g][j].len)
+				{
+					D[i][j].len = D[i][g].len + D[g][j].len;
+					D[i][j].pre = D[g][j].pre;
+				}
+	cin >> r;
+	while(r--)
+	{
+		cin >> fol1 >> fol2;
+		output(sour[fol1], sour[fol2]);
+		cout << endl;
+	}
 	system("pause");
 	return 0;
 }
