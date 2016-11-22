@@ -1,135 +1,58 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
 using namespace std;
-#define MAXN 100010
-#define MAXM 50010
-struct Node
+#define MAXN 12
+#define eps 1e-6
+struct Point
 {
-	Node *ch[2];
-	int r, v;
-	int s;
-	Node(int _v)
-	{
-		v = _v;
-		r = rand();
-		s = 1;
-		ch[0] = ch[1] = NULL;
-	}
-	void Resize()
-	{
-		s = 1;
-		if (ch[0]) 
-			s += ch[0]->s;
-		if (ch[1]) 
-			s += ch[1]->s;
-	}
-};
-void Rotate(Node* &p, int d)
+	int x, y, z;
+}a[MAXN];
+struct Distance
 {
-	Node *k = p->ch[d ^ 1];
-	p->ch[d ^ 1] = k->ch[d];
-	k->ch[d] = p;
-	p->Resize();
-	k->Resize();
-	p = k;
-}
-void Insert(Node* &p, int v)
+	int x, y, z;
+	int p, q, r;
+	int id, id2;
+	float dis;
+}d[MAXN * MAXN / 2];
+int cmp(Distance a, Distance b)
 {
-	if (!p) 
-		p = new Node(v);
-	else
+	if (fabs(a.dis - b.dis) < eps)
 	{
-		int d = v < p->v ? 0 : 1;
-		Insert(p->ch[d], v);
-		if (p->ch[d]->r > p->r)
-			Rotate(p, d ^ 1);
-	}
-	p->Resize();
-}
-void Remove(Node* &p, int v)
-{
-	if (p->v == v)
-	{
-		Node *u = p;
-		if (p->ch[0] && p->ch[1])
-		{
-			int flag = p->ch[0]->r < p->ch[1]->r ? 0 : 1;
-			Rotate(p, flag);
-			Remove(p->ch[flag], v);
-		}
+		if (a.id == b.id)
+			return a.id2 < b.id2;
 		else
-		{
-			if (!p->ch[0]) 
-				p = p->ch[1];
-			else 
-				p = p->ch[0];
-			delete u;
-		}
+			return (a.id < b.id);
 	}
-	else 
-		Remove(p->ch[(p->v < v)], v);
-	if (p) 
-		p->Resize();
+	return (a.dis > b.dis);
 }
-int Find(Node *p, int k)
-{
-	int s = (p->ch[0]) ? p->ch[0]->s : 0;
-	if (k == s + 1) 
-		return p->v;
-	else if (k <= s) 
-		return Find(p->ch[0], k);
-	else 
-		return Find(p->ch[1], k - s - 1);
-}
-
-struct query
-{
-	int l, r, k;
-	int id;
-	bool operator < (const query&b) const
-	{
-		return l < b.l;
-	}
-}qs[MAXM];
-int n, m;
-int val[MAXN];
-int ans[MAXM];
 int main()
 {
-	Node *root = NULL;
-	scanf("%d%d", &n, &m);
-	for (int i = 1; i <= n; i++) 
-		scanf("%d", &val[i]);
-	for (int i = 1; i <= m; i++)
-	{
-		scanf("%d%d%d", &qs[i].l, &qs[i].r, &qs[i].k);
-		qs[i].id = i;
-	}
-	sort(qs + 1, qs + m + 1);
-	int L = 1, R = 1;
-	for (int i = 1; i <= m; i++)
-	{
-		while (L < qs[i].l)
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+		cin >> a[i].x >> a[i].y >> a[i].z;
+	int cnt = 0;
+	for (int i = 0; i < n - 1; i++)
+		for (int j = i + 1; j < n; j++)
 		{
-			if (L < R)
-				Remove(root, val[L]);
-			L++;
+			d[cnt].x = a[i].x;
+			d[cnt].y = a[i].y;
+			d[cnt].z = a[i].z;
+			d[cnt].p = a[j].x;
+			d[cnt].q = a[j].y;
+			d[cnt].r = a[j].z;
+			d[cnt].id = i;
+			d[cnt].id2 = j;
+			d[cnt].dis = sqrt((a[i].x - a[j].x) * (a[i].x - a[j].x) + (a[i].y - a[j].y) * (a[i].y - a[j].y) + (a[i].z - a[j].z) * (a[i].z - a[j].z));
+			cnt++;
 		}
-		if (R < L)
-			R = L;
-		while (R <= qs[i].r)
-		{
-			Insert(root, val[R]);
-			R++;
-		}
-		ans[qs[i].id] = Find(root, qs[i].k);
-	}
-	for (int i = 1; i <= m; i++) 
-		printf("%d\n", ans[i]);
+	sort(d, d + cnt, cmp);
+	for (int i = 0; i < cnt; i++)
+		printf("(%d,%d,%d)-(%d,%d,%d)=%.2f\n", d[i].x, d[i].y, d[i].z, d[i].p, d[i].q, d[i].r, d[i].dis);
 	system("pause");
 	return 0;
 }
