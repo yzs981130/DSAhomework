@@ -2,82 +2,79 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <string>
 #include <vector>
 #include <functional>
 #include <iostream>
 #include <algorithm>
 using namespace std;
-#define MAXN 3000
-struct Peanut
+#define MAXN 160
+string a;
+string str[MAXN];
+char tmp[MAXN];
+int ans;
+
+void Merge(int l, int m, int r)
 {
-	int x, y;
-	int value;
-}peanuts[MAXN];
-int cmp(Peanut p, Peanut q)
-{
-	if (p.value > q.value)
-		return 1;
-	return 0;
+	int i = l;
+	int j = m + 1;
+	int k = l;
+	while (i <= m && j <= r)
+	{
+		if (a[i] > a[j])
+		{
+			tmp[k++] = a[j++];
+			ans += m - i + 1;
+		}
+		else
+			tmp[k++] = a[i++];
+	}
+	while (i <= m) 
+		tmp[k++] = a[i++];
+	while (j <= r) 
+		tmp[k++] = a[j++];
+	for (int i = l; i <= r; i++)
+		a[i] = tmp[i];
 }
-struct Ans
+
+void Merge_sort(int l, int r)
+{
+	if (l < r)
+	{
+		int m = (l + r) >> 1;
+		Merge_sort(l, m);
+		Merge_sort(m + 1, r);
+		Merge(l, m, r);
+	}
+}
+struct DNA
 {
 	int id;
-	int benefit;
-	int cost;
-}ans[MAXN];
-int dis(const Peanut &a, const Peanut &b)
+	int value;
+}p[MAXN];
+int cmp(DNA a, DNA b)
 {
-	return abs(a.x - b.x) + abs(a.y - b.y);
-}
-int cmp2(Ans a, Ans b)
-{
-	if (a.cost < b.cost || ((a.cost == b.cost) && (a.benefit < b.benefit)))
-		return 1;
-	return 0;
+	if (a.value == b.value)
+		return a.id < b.id;
+	return a.value < b.value;
 }
 int main()
 {
-	int t;
-	scanf("%d", &t);
-	while (t--)
+	int n, m;
+	scanf("%d %d", &n, &m);
+	for (int i = 0; i < m; i++)
 	{
-		int m, n, k;
-		scanf("%d %d %d", &m, &n, &k);
-		int cnt = 0;
-		for(int i = 0; i < m; i++)
-			for (int j = 0; j < n; j++)
-			{
-				peanuts[cnt].x = i;
-				peanuts[cnt].y = j;
-				scanf("%d", &peanuts[cnt++].value);
-			}
-		sort(peanuts, peanuts + m * n, cmp);
-		
-		ans[0].benefit = peanuts[0].value;
-		ans[0].id = 1;
-		ans[0].cost = 2 * (peanuts[0].x + 1);
-
-		for (int i = 1; i < m * n; i++)
-		{
-			if (peanuts[i].value == 0)
-			{
-				cnt = i;
-				break;
-			}
-			ans[i].benefit = ans[i - 1].benefit + peanuts[i].value;
-			ans[i].cost = ans[i - 1].cost - peanuts[i - 1].x + peanuts[i].x + dis(peanuts[i], peanuts[i - 1]);
-			ans[i].id = ans[i - 1].id + 1;
-		}
-		sort(ans, ans + cnt, cmp2);
-		int t = 0, tmp_cost = 0, tmp_benefit = 0;
-		for (int i = 0; i < cnt; i++)
-		{
-			if (ans[i].cost + ans[i].id <= k)
-				tmp_benefit = ans[i].benefit;
-			else break;
-		}
-		printf("%d\n", tmp_benefit);
+		cin >> str[i];
+		p[i].id = i;
+		memset(tmp, 0, sizeof(tmp));
+		ans = 0;
+		a = str[i];
+		Merge_sort(0, n - 1);
+		p[i].value = ans;
 	}
+	sort(p, p + m, cmp);
+	for (int i = 0; i < m; i++)
+		cout << str[p[i].id] << endl;
 	system("pause");
 	return 0;
 }
