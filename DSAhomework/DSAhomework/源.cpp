@@ -7,38 +7,39 @@
 #include <iostream>
 #include <algorithm>
 using namespace std;
-#define OFFSET 1000000
-#define MAXN 2000100
+#define MAXN 50010
 int a[MAXN];
+int b[MAXN];
+struct Cow
+{
+	int a, b;
+	int id;
+}cow[MAXN];
+int cmp(Cow p, Cow q)
+{
+	if (p.a > q.a)
+		return 1;
+	else
+		return 0;
+}
 int main()
 {
-	int n, t;
-	scanf("%d %d", &n, &t);
-	int m;
+	int n, k;
+	scanf("%d %d", &n, &k);
 	for (int i = 0; i < n; i++)
 	{
-		scanf("%d", &m);
-		m += OFFSET;
-		a[m] += 1;
+		scanf("%d %d", &cow[i].a, &cow[i].b);
+		cow[i].id = i;
 	}
-	int cnt = 0;
-	for (int i = 0; i < MAXN; i++)
-	{
-		if (!a[i])continue;
-		if (i + t < 0 || i + t > MAXN)continue;
-		if (!a[i + t])continue;
-		a[i]--;
-		if (!a[i + t])
+	sort(cow, cow + n, cmp);
+	int ans = 0, max_b = 0;
+	for(int i = 0; i < k; i++)
+		if (cow[i].b > max_b)
 		{
-			a[i]++;
-			continue;
+			max_b = cow[i].b;
+			ans = cow[i].id;
 		}
-		a[i + t]--;
-		cnt++;
-		a[i]++;
-		a[i + t]++;
-	}
-	printf("%d\n", cnt);
+	printf("%d\n", ans + 1);
 	system("pause");
 	return 0;
 }
