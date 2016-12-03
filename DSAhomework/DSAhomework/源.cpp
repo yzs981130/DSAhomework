@@ -5,42 +5,22 @@
 #include <queue>
 #include <stack>
 using namespace std;
-#define MAXN 100010
-int a[MAXN];
-int que[MAXN];
+int que[80000];
+int head = 0, rear = -1;
 int main()
 {
-	int n, k;
-	scanf("%d %d", &n, &k);
-	for (int i = 0; i < n; i++)
-		scanf("%d", &a[i]);
-	int i = 0, head = 0, rear = -1;
-	while (i < n)
+	int n, input;
+	long long ans = 0;
+	cin >> n;
+	while (n--) 
 	{
-		while (a[i] <= a[que[rear]] && rear >= head)
+		cin >> input;
+		while (rear >= head && input >= que[rear]) 
 			rear--;
-		que[++rear] = i;
-		while (rear >= head && que[head] < i - k + 1)
-			head++;
-		if (i >= k - 1)
-			printf("%d ", a[que[head]]);
-		i++;
+		que[++rear] = input;
+		ans += rear - head;
 	}
-	printf("\n");
-	i = 0;
-	head = 0;
-	rear = -1;
-	while (i < n)
-	{
-		while (a[i] >= a[que[rear]] && rear >= head)
-			rear--;
-		que[++rear] = i;
-		while (rear >= head && que[head] < i - k + 1)
-			head++;
-		if (i >= k - 1)
-			printf("%d ", a[que[head]]);
-		i++;
-	}
+	cout << ans << endl;
 	system("pause");
 	return 0;
 }
