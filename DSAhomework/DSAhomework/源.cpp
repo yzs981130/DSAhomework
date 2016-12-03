@@ -1,79 +1,45 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <cstring>
+#include <string>
+#include <queue>
+#include <stack>
 using namespace std;
-struct item
-{
-	int k;
-	item *next;
-};
-
-void Add(item *head, int k)
-{
-	while (head != NULL)
-	{
-		head->k += k;
-		head->k %= 65536;
-		head = head->next;
-	}
-}
-int Query(item *head, int k)
-{
-	int cnt = 0;
-	while (head != NULL)
-	{
-		if (head->k & (1 << k))
-			cnt++;
-		head = head->next;
-	}
-	return cnt;
-}
+#define MAXN 100010
+int a[MAXN];
+int que[MAXN];
 int main()
 {
-	int n, m;
-	scanf("%d %d", &n, &m);
-	item *head = NULL, *current = NULL, *tail = NULL;
-	head = current;
+	int n, k;
+	scanf("%d %d", &n, &k);
 	for (int i = 0; i < n; i++)
+		scanf("%d", &a[i]);
+	int i = 0, head = 0, rear = -1;
+	while (i < n)
 	{
-		int t;
-		scanf("%d", &t);
-		current = new item;
-		current->k = t;
-		current->next = NULL;
-		if (head == NULL)
-		{
-			head = current;
-			tail = head;
-		}
-		else
-		{
-			tail->next = current;
-			tail = current;
-		}
+		while (a[i] <= a[que[rear]] && rear >= head)
+			rear--;
+		que[++rear] = i;
+		while (rear >= head && que[head] < i - k + 1)
+			head++;
+		if (i >= k - 1)
+			printf("%d ", a[que[head]]);
+		i++;
 	}
-	for (int i = 0; i < m; i++)
+	printf("\n");
+	i = 0;
+	head = 0;
+	rear = -1;
+	while (i < n)
 	{
-		char c;
-		cin >> c;
-		if (c == 'C')
-		{
-			int t;
-			scanf("%d", &t);
-			Add(head, t);
-		}
-		else if (c == 'Q')
-		{
-			int t;
-			scanf("%d", &t);
-			printf("%d\n", Query(head, t));
-			getchar();
-		}
-	}
-	while (head != NULL)
-	{
-		item *temp = head->next;
-		delete head;
-		head = temp;
+		while (a[i] >= a[que[rear]] && rear >= head)
+			rear--;
+		que[++rear] = i;
+		while (rear >= head && que[head] < i - k + 1)
+			head++;
+		if (i >= k - 1)
+			printf("%d ", a[que[head]]);
+		i++;
 	}
 	system("pause");
 	return 0;
