@@ -4,81 +4,76 @@ using namespace std;
 struct item
 {
 	int k;
-	int ex;
 	item *next;
 };
-bool Equal = false;
-item *search(item *head, int exp, int k)
+
+void Add(item *head, int k)
 {
-	while (head->next)
+	while (head != NULL)
 	{
-		if (head->next->ex == exp)
-		{
-			head->next->k += k;
-			Equal = true;
-		}
-		if (head->next->ex < exp)
-			break;
+		head->k += k;
+		head->k %= 65536;
 		head = head->next;
 	}
-	return head;
+}
+int Query(item *head, int k)
+{
+	int cnt = 0;
+	while (head != NULL)
+	{
+		if (head->k & (1 << k))
+			cnt++;
+		head = head->next;
+	}
+	return cnt;
 }
 int main()
 {
-	int n;
-	scanf("%d", &n);
-	while (n--)
+	int n, m;
+	scanf("%d %d", &n, &m);
+	item *head = NULL, *current = NULL, *tail = NULL;
+	head = current;
+	for (int i = 0; i < n; i++)
 	{
-		item *head = NULL, *current = NULL;
-		int k, exp;
-		for (int i = 0; i < 2; i++)
+		int t;
+		scanf("%d", &t);
+		current = new item;
+		current->k = t;
+		current->next = NULL;
+		if (head == NULL)
 		{
-			while (scanf("%d %d", &k, &exp) && exp >= 0)
-			{
-				current = new item;
-				current->k = k;
-				current->ex = exp;
-				current->next = NULL;
-				if (head == NULL)
-					head = current;
-				else if (exp > head->ex)
-				{
-					current->next = head;
-					head = current;
-				}
-				else if (exp == head->ex)
-				{
-					head->k += k;
-					delete current;
-				}
-				else
-				{
-					item *temp = search(head, current->ex, current->k);
-					if (!Equal)
-					{
-						current->next = temp->next;
-						temp->next = current;
-					}
-					Equal = false;
-				}
-			}
+			head = current;
+			tail = head;
 		}
-		current = head;
-		while (current->next)
+		else
 		{
-			if (current->k != 0)
-				printf("[ %d %d ] ", current->k, current->ex);
-			current = current->next;
+			tail->next = current;
+			tail = current;
 		}
-		if (current->k != 0)
-			printf("[ %d %d ] ", current->k, current->ex);
-		printf("\n");
-		while (head != NULL)
+	}
+	for (int i = 0; i < m; i++)
+	{
+		char c;
+		cin >> c;
+		if (c == 'C')
 		{
-			item *temp = head->next;
-			delete head;
-			head = temp;
+			int t;
+			scanf("%d", &t);
+			Add(head, t);
 		}
+		else if (c == 'Q')
+		{
+			int t;
+			scanf("%d", &t);
+			printf("%d\n", Query(head, t));
+			getchar();
+		}
+	}
+	while (head != NULL)
+	{
+		item *temp = head->next;
+		delete head;
+		head = temp;
 	}
 	system("pause");
 	return 0;
