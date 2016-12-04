@@ -2,27 +2,37 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <queue>
-#include <stack>
 using namespace std;
-string str[55];
+#define MAXN 1000010
+char str[MAXN];
+int Next[MAXN];
+void findNext(int len)
+{
+	Next[0] = -1;
+	int i = 0, j = -1;
+	while (i < len)
+	{
+		if (j == -1 || str[i] == str[j])
+		{
+			i++;
+			j++;
+			Next[i] = j;
+		}
+		else
+			j = Next[j];
+	}
+}
 int main()
 {
-	string s, t;
-	while (cin >> s >> t)
+	while (scanf("%s", &str) && str[0] != '.')
 	{
-		int s_len = s.length();
-		int t_len = t.length();
-		int cnt_s = 0;
-		for (int i = 0; i < t_len; i++)
-		{
-			if (t[i] == s[cnt_s])
-				cnt_s++;
-		}
-		if (cnt_s == s.length())
-			printf("Yes\n");
+		memset(Next, 0, sizeof(Next));
+		int i = strlen(str);
+		findNext(i);
+		if (i % (i - Next[i]) || Next[i] == 0)
+			printf("1\n");
 		else
-			printf("No\n");
+			printf("%d\n", i / (i - Next[i]));
 	}
 	system("pause");
 	return 0;
