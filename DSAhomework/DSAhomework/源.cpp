@@ -6,10 +6,10 @@ using namespace std;
 #define MAXN 1000010
 char str[MAXN];
 int Next[MAXN];
-void findNext(int len)
+void makeNext(int len)
 {
-	Next[0] = -1;
 	int i = 0, j = -1;
+	Next[0] = -1;
 	while (i < len)
 	{
 		if (j == -1 || str[i] == str[j])
@@ -24,15 +24,19 @@ void findNext(int len)
 }
 int main()
 {
-	while (scanf("%s", &str) && str[0] != '.')
+	int n, t = 1;
+	while (scanf("%d", &n) && n != 0)
 	{
+		getchar();
+		scanf("%s", &str);
 		memset(Next, 0, sizeof(Next));
-		int i = strlen(str);
-		findNext(i);
-		if (i % (i - Next[i]) || Next[i] == 0)
-			printf("1\n");
-		else
-			printf("%d\n", i / (i - Next[i]));
+		printf("Test case #%d\n", t++);
+		int len = strlen(str);
+		makeNext(len);
+		for (int i = 2; i <= len; i++)
+			if (i % (i - Next[i]) == 0 && Next[i] > 0)
+				printf("%d %d\n", i, i / (i - Next[i]));
+		printf("\n");
 	}
 	system("pause");
 	return 0;
