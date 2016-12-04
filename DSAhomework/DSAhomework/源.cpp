@@ -2,41 +2,103 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <stack>
 using namespace std;
 #define MAXN 1000010
-char str[MAXN];
-int Next[MAXN];
-void makeNext(int len)
+struct Node
 {
-	int i = 0, j = -1;
-	Next[0] = -1;
-	while (i < len)
+	char c;
+	Node *l, *r;
+	int d;
+	int depth;
+};
+Node *build()
+{
+	string s;
+	stack<Node*>Stack;
+	cin >> s;
+	Node *root = new Node;
+	root->c = s[0];
+	root->l = NULL;
+	root->r = NULL;
+	root->depth = 0;
+	root->d = 0;
+	Stack.push(root);
+	while (cin >> s && s != "0")
 	{
-		if (j == -1 || str[i] == str[j])
+		int len = s.length();
+		Node *current = new Node;
+		current->c = s[len - 1];
+		current->depth = len - 1;
+		current->l = NULL;
+		current->r = NULL;
+		current->d = 0;
+		Node *r = Stack.top();
+		while (current->depth - r->depth != 1)
 		{
-			i++;
-			j++;
-			Next[i] = j;
+			Stack.pop();
+			r = Stack.top();
 		}
-		else
-			j = Next[j];
+		if (current->c == '*')
+		{
+			r->d++;
+			continue;
+		}
+		if (r->d == 0)
+		{
+			r->l = current;
+			r->d++;
+		}
+		else if (r->d == 1)
+		{
+			r->r = current;
+			r->d++;
+		}
+		Stack.push(current);
+	}
+	return root;
+}
+void pre(Node *root)
+{
+	if (root)
+	{
+		cout << root->c;
+		pre(root->l);
+		pre(root->r);
+	}
+}
+void in(Node *root)
+{
+	if (root)
+	{
+		in(root->l);
+		cout << root->c;
+		in(root->r);
+	}
+}
+void post(Node *root)
+{
+	if (root)
+	{
+		post(root->l);
+		post(root->r);
+		cout << root->c;
 	}
 }
 int main()
 {
-	int n, t = 1;
-	while (scanf("%d", &n) && n != 0)
+	int n;
+	scanf("%d", &n);
+	while (n--)
 	{
-		getchar();
-		scanf("%s", &str);
-		memset(Next, 0, sizeof(Next));
-		printf("Test case #%d\n", t++);
-		int len = strlen(str);
-		makeNext(len);
-		for (int i = 2; i <= len; i++)
-			if (i % (i - Next[i]) == 0 && Next[i] > 0)
-				printf("%d %d\n", i, i / (i - Next[i]));
-		printf("\n");
+		Node *root = build();
+		pre(root);
+		cout << endl;
+		post(root);
+		cout << endl;
+		in(root);
+		cout << endl;
+		cout << endl;
 	}
 	system("pause");
 	return 0;
