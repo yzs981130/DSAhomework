@@ -7,78 +7,64 @@
 #include <string>
 #include <cstring>
 using namespace std;
-#define MAXN 50
+#define MAXN 30
 #define INFI 99999
-map<string, int>m1;
-map<int, string>m2;
-struct dist
+bool flag[MAXN];
+struct Edge
 {
-	int len;
-	int pre;
-}D[MAXN][MAXN];
-void output(int s, int e)
+	int a, b;
+	int weight;
+}edge[200];
+int cmp(Edge a, Edge b)
 {
-	if (s == e)
-	{
-		cout << m2[s];
-		return;
-	}
-	output(s, D[s][e].pre);
-	cout << "->(" << D[D[s][e].pre][e].len << ")->" << m2[e];
+	return a.weight < b.weight;
 }
 int main()
 {
-	int p, q, r, dis;
-	scanf("%d", &p);
-	string a, b;
-	for (int i = 0; i < p; i++)
+	freopen("in.txt", "r", stdin);
+	freopen("out.txt", "w", stdout);
+	int n;
+	while (cin >> n && n != 0)
 	{
-		cin >> a;
-		m1[a] = i;
-		m2[i] = a;
-	}
-	for (int i = 0; i < p; i++)
-		for (int j = 0; j < p; j++)
+		memset(edge, 0, sizeof(edge));
+		memset(flag, 0, sizeof(flag));
+		int cnt_edge = 0;
+		for (int i = 0; i < n - 1; i++)
 		{
-			if (i != j)
+			char c;
+			int cnt;
+			cin >> c >> cnt;
+			for (int j = 0; j < cnt; j++)
 			{
-				D[i][j].len = INFI;
-				D[i][j].pre = -1;
-			}
-			else
-			{
-				D[i][j].len = 0;
-				D[i][j].pre = i;
+				char d;
+				int len;
+				cin >> d >> len;
+				edge[cnt_edge].a = c - 'A';
+				edge[cnt_edge].b = d - 'A';
+				edge[cnt_edge].weight = len;
+				cnt_edge++;
 			}
 		}
-	scanf("%d", &q);
-	for (int i = 0; i < q; i++) 
-	{
-		cin >> a >> b >> dis;
-		if (D[m1[a]][m1[b]].len > dis)
+		sort(edge, edge + cnt_edge, cmp);
+		int ans = 0, left = n - 1;
+		flag[0] = true;
+		while (left != 0)
 		{
-			D[m1[a]][m1[b]].len = dis;
-			D[m1[a]][m1[b]].pre = m1[a];
-			D[m1[b]][m1[a]].len = dis;
-			D[m1[b]][m1[a]].pre = m1[b];
+			for (int i = 0; i < cnt_edge; i++)
+			{
+				if (flag[edge[i].a] && flag[edge[i].b] || !flag[edge[i].a] && !flag[edge[i].b])
+					continue;
+				if (flag[edge[i].a] && !flag[edge[i].b])
+					flag[edge[i].b] = true;
+				else if (flag[edge[i].b] && !flag[edge[i].a])
+					flag[edge[i].a] = true;
+				ans += edge[i].weight;
+				left--;
+				i = -1;
+			}
 		}
+		cout << ans << endl;
 	}
-	for(int k = 0; k < p; k++)
-		for(int i = 0; i < p; i++)
-			for (int j = 0; j < p; j++)
-				if (D[i][j].len > D[i][k].len + D[k][j].len)
-				{
-					D[i][j].len = D[i][k].len + D[k][j].len;
-					D[i][j].pre = D[k][j].pre;
-				}
-	
-	scanf("%d", &r);
-	for (int i = 0; i < r; i++)
-	{
-		cin >> a >> b;
-		output(m1[a], m1[b]);
-		cout << endl;
-	}
-	system("pause");
+	//system("pause");
 	return 0;
 }
