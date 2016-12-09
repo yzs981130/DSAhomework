@@ -1,134 +1,57 @@
-#include<cstdio>
-#include<cmath>
-#include<cstring>
-#include<algorithm>
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <queue>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <functional>
 using namespace std;
-const int inf = 0x3f3f3f3f;
-const int maxn = 1005;
-struct point
+#define MAXN 30010
+int p[MAXN];
+int find(int x)
 {
-	double x, y;
-}p[maxn];
-struct node
-{
-	int u, v;
-	double len;
-}edge[maxn*maxn];
-int pre[maxn], id[maxn], vis[maxn];
-double in[maxn];
-double dis(point a, point b)
-{
-	return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
-}
-double dir_mst(int root, int n, int m)
-{
-	double ans = 0;
-	while (1)
+	while (x != p[x])
 	{
-		for (int i = 0; i<n; ++i)
-		{
-			in[i] = inf;
-		}
-		for (int i = 0; i<m; ++i)
-		{
-			int u = edge[i].u, v = edge[i].v;
-			if (edge[i].len<in[v] && u != v)
-			{
-				pre[v] = u; in[v] = edge[i].len;
-			}
-		}
-		for (int i = 0; i<n; ++i)
-		{
-			if (i == root)
-			{
-				continue;
-			}
-			if (in[i] == inf)
-			{
-				return -1;	//如果某点入度为零，必定找不到 
-			}
-		}
-		//检查这些边是否构成了环 
-		memset(id, -1, sizeof(id));
-		memset(vis, -1, sizeof(vis));
-		in[root] = 0;
-		int cnt = 0;
-		for (int i = 0; i<n; ++i)//标记环 
-		{
-			ans += in[i];
-			int v = i;
-			while (vis[v] != i&&id[v] == -1 && v != root)
-			{
-				vis[v] = i;
-				v = pre[v];
-			}
-			if (v != root&&id[v] == -1)//缩点 
-			{
-				for (int u = pre[v]; u != v; u = pre[u])
-				{
-					id[u] = cnt;
-				}
-				id[v] = cnt++;
-			}
-		}
-		if (cnt == 0)
-		{
-			break;//无环 
-		}
-		for (int i = 0; i<n; ++i)
-		{
-			if (id[i] == -1)
-			{
-				id[i] = cnt++;
-			}
-		}
-		//建立新图 
-		for (int i = 0; i<m; ++i)
-		{
-			int u = edge[i].u, v = edge[i].v;
-			edge[i].u = id[u];
-			edge[i].v = id[v];
-			if (id[u] != id[v])
-			{
-				edge[i].len -= in[v];
-			}
-		}
-		n = cnt;
-		root = id[root];
+		p[x] = p[p[x]];
+		x = p[x];
 	}
-	return ans;
+	return x;
+}
+void unite(int x, int y)
+{
+	int fx = find(x), fy = find(y);
+	if (fx == fy)
+		return;
+	p[fx] = fy;
 }
 int main()
 {
 	int n, m;
-	while (~scanf("%d%d", &n, &m))
+	while (scanf("%d %d", &n, &m) && n != 0)
 	{
-		for (int i = 0; i<n; ++i)
+		int k;
+		for (int i = 0; i < n; i++)
+			p[i] = i;
+		int t;
+		for (int j = 0; j < m; j++)
 		{
-			scanf("%lf%lf", &p[i].x, &p[i].y);
-		}
-		for (int i = 0; i<m; ++i)
-		{
-			scanf("%d%d", &edge[i].u, &edge[i].v);
-			--edge[i].u; --edge[i].v;
-			if (edge[i].u != edge[i].v)
+			scanf("%d", &k);
+			if (!k)
+				continue;
+			scanf("%d", &t);
+			int r;
+			for (int i = 1; i < k; i++)
 			{
-				edge[i].len = dis(p[edge[i].u], p[edge[i].v]);
-			}
-			else
-			{
-				edge[i].len = inf;
+				scanf("%d", &r);
+				unite(r, t);
 			}
 		}
-		double ans = dir_mst(0, n, m);
-		if (ans == -1)
-		{
-			printf("NO\n");
-		}
-		else
-		{
-			printf("%.2f\n", ans);
-		}
+		int ans = 0;
+		for (int i = 0; i < n; i++)
+			if (find(i) == find(0))
+				ans++;
+		printf("%d\n", ans);
 	}
+	system("pause");
 	return 0;
 }
