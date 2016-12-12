@@ -4,41 +4,60 @@
 #include <string>
 #include <cstring>
 #include <stack>
-#include <bitset>
-#include <vector>
-#include <queue>
 #include <algorithm>
 using namespace std;
-#define MAXN 1000010
 using namespace std;
-queue<int>q;
-int p[MAXN];
+stack<char>s;
 int main()
 {
-	int n, m, t;
-	cin >> m >> n;
-	memset(p, 0, sizeof(p));
-	int ans = 0;
-	for (int i = 0; i < n; i++)
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	string str;
+	cin >> str;
+	int len = str.length();
+	bool ans = true;
+	for (int i = 0; i < len && ans; i++)
 	{
-		scanf("%d", &t);
-		bool exist = p[t];
-		if (q.size() < m && !exist)
+		char c = str[i];
+		if (c == '(' || c == '[' || c == '{')
+			s.push(c);
+		else if (c == ')')
 		{
-			q.push(t);
-			p[t]++;
+			if (s.empty())
+			{
+				ans = false;
+				break;
+			}
+			char t = s.top();
+			if (t == '(')
+				s.pop();
 		}
-		else if (exist)
-			ans++;
-		else
+		else if (c == ']')
 		{
-			int d = q.front();
-			q.pop();
-			p[d]--;
-			q.push(t);
-			p[t]++;
+			if (s.empty())
+			{
+				ans = false;
+				break;
+			}
+			char t = s.top();
+			if (t == '[')
+				s.pop();
+		}
+		else if (c == '}')
+		{
+			if (s.empty())
+			{
+				ans = false;
+				break;
+			}
+			char t = s.top();
+			if (t == '{')
+				s.pop();
 		}
 	}
-	cout << n - ans << endl;
+	if (s.empty() && ans)
+		cout << "Yes" << endl;
+	else
+		cout << "No" << endl;
 	return 0;
 }
