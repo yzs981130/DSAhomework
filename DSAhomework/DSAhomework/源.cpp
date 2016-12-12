@@ -1,53 +1,50 @@
-#include<iostream>    
-#include<string>
-#include<cstdio>
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <algorithm>
+#include <stack>
+#include <vector>
+#include <cstdio>
+#include <cstring>
 using namespace std;
-int c[200010];
-int f[200010];
-string a, b;
-int n, m, k;
-
-void getNext()
-{
-	for (int i = 1; i<m; ++i)
-	{
-		int j = f[i];
-		while (j && b[i] != b[j])
-			j = f[j];
-		f[i + 1] = (b[i] == b[j]) ? j + 1 : 0;
-	}
-}
-
-void find()
-{
-	int j = 0;
-	for (int i = 0; i < n; ++i)
-	{
-		while (j && a[i] != b[j])
-			j = f[j];
-		if (a[i] == b[j])
-			j++;
-		c[j]++;
-	}
-}
-
+#define MAXM 500010
+#define MAXN 100010
+vector<int>e[MAXN];
+int d[MAXN];
 int main()
 {
-	cin.tie(0);
-	ios::sync_with_stdio(false);
-	cin >> n >> m >> k;
-	cin >> a >> b;
-	getNext();
-	find();
-	for (int i = m; i > 0; --i)
-		c[f[i]] += c[i];
-	for (int i = 0; i <= m; ++i)
-		c[i] -= c[i + 1];
-	for (int i = 1; i <= k; ++i)
+	int t;
+	cin >> t;
+	while (t--)
 	{
-		int r;
-		cin >> r;
-		cout << c[r] << endl;
+		int n, m, x, y;
+		memset(e, 0, sizeof(e));
+		memset(d, 0, sizeof(d));
+		stack<int>s;
+		cin >> n >> m;
+		int cnt = 0;
+		for (int i = 1; i <= m; i++)
+		{
+			scanf("%d %d", &x, &y);
+			e[x].push_back(y);
+			d[y]++;
+		}
+		for (int i = 1; i <= n; i++)
+			if (!d[i])
+				s.push(i);
+		while (!s.empty())
+		{
+			int t = s.top();
+			s.pop();
+			cnt++;
+			for (int i = 0; i < e[t].size(); i++)
+			{
+				int r = e[t][i];
+				d[r]--;
+				if (!d[r])
+					s.push(r);
+			}
+		}
+		cout << ((cnt == n) ? "No" : "Yes") << endl;
 	}
 	return 0;
 }
