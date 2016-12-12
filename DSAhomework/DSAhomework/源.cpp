@@ -1,60 +1,56 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<iostream>
-#include<algorithm>
-#include<cstdio>
-#include<cstring>
-#define lowbit(x) (x&(-x))
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <cstring>
+#include <stack>
+#include <bitset>
+#include <vector>
+#include <queue>
+#include <algorithm>
 using namespace std;
-const int MAX = 100010;
-
-struct Data
+#define MAXN 310
+using namespace std;
+int p[MAXN];
+int a[MAXN][MAXN];
+int find(int x)
 {
-	int id, w;
-}num[MAX];
-int n, ar[MAX];
-
-bool cmp(Data a, Data b)
-{
-	return a.w > b.w;
+	if (x == p[x])
+		return x;
+	p[x] = find(p[x]);
+	return p[x];
 }
-
-void add(int i)
+void unite(int x, int y)
 {
-	while (i <= n)
-	{
-		ar[i] += 1;
-		i += lowbit(i);
-	}
+	int fx = find(x);
+	int fy = find(y);
+	if (fx != fy)
+		p[fx] = fy;
 }
-
-long long sum(int i)
-{
-	long long ans = 0;
-	while (i)
-	{
-		ans += ar[i];
-		i -= lowbit(i);
-	}
-	return ans;
-}
-
 int main()
 {
-	int i;
-	scanf("%d", &n);
-	memset(ar, 0, sizeof(ar));
-	for (i = 0; i < n; i++)
-	{
-		num[i].id = i + 1;
-		scanf("%d", &num[i].w);
-	}
-	sort(num, num + n, cmp);
-	long long ans = 0;
-	for (i = 0; i < n; i++)
-	{
-		ans += sum(num[i].id - 1);
-		add(num[i].id);
-	}
-	printf("%lld\n", 1LL * n * (n - 1) / 2 - ans);
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++)
+		p[i] = i;
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+		{
+			char c = getchar();
+			if (c == '\n')
+				c = getchar();
+			if (c - '0')
+				unite(i, j);
+		}
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+		{
+			if (find(i) == find(j))
+				cout << 1;
+			else
+				cout << 0;
+			if (j == n - 1)
+				cout << endl;
+		}
 	return 0;
 }
