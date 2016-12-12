@@ -9,48 +9,36 @@
 #include <queue>
 #include <algorithm>
 using namespace std;
-#define MAXN 310
+#define MAXN 1000010
 using namespace std;
+queue<int>q;
 int p[MAXN];
-int a[MAXN][MAXN];
-int find(int x)
-{
-	if (x == p[x])
-		return x;
-	p[x] = find(p[x]);
-	return p[x];
-}
-void unite(int x, int y)
-{
-	int fx = find(x);
-	int fy = find(y);
-	if (fx != fy)
-		p[fx] = fy;
-}
 int main()
 {
-	int n;
-	cin >> n;
+	int n, m, t;
+	cin >> m >> n;
+	memset(p, 0, sizeof(p));
+	int ans = 0;
 	for (int i = 0; i < n; i++)
-		p[i] = i;
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < n; j++)
+	{
+		scanf("%d", &t);
+		bool exist = p[t];
+		if (q.size() < m && !exist)
 		{
-			char c = getchar();
-			if (c == '\n')
-				c = getchar();
-			if (c - '0')
-				unite(i, j);
+			q.push(t);
+			p[t]++;
 		}
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < n; j++)
+		else if (exist)
+			ans++;
+		else
 		{
-			if (find(i) == find(j))
-				cout << 1;
-			else
-				cout << 0;
-			if (j == n - 1)
-				cout << endl;
+			int d = q.front();
+			q.pop();
+			p[d]--;
+			q.push(t);
+			p[t]++;
 		}
+	}
+	cout << n - ans << endl;
 	return 0;
 }
