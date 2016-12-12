@@ -1,69 +1,54 @@
-#include <iostream>
-#include <stdio.h>
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<vector>
+#include<queue>
 using namespace std;
-
-int _case, bug, flag, action, a, b;
-int father[2100], r[2100];
-
-int root(int x)
-{
-	int temp;
-	if (x == father[x])
-		return father[x];
-	temp = root(father[x]);
-	r[x] = (r[x] + r[father[x]]) % 2;
-	father[x] = temp;
-
-	return father[x];
-}
-
-void Union(int x, int y)
-{
-	int fx = root(x);
-	int fy = root(y);
-
-	if (fx != fy)
+int n, m;
+struct node {
+	int y, di, fee;
+	node(int yy, int dii, int fe)
 	{
-		father[fx] = fy;
-
-		if (r[y] == 0)
-			r[fx] = 1 - r[x];
-		else
-			r[fx] = r[x];
-	}
-	else
+		y = yy, di = dii, fee = fe;
+	}node() {}
+	bool operator < (const struct node a)const
 	{
-		if (r[x] == r[y])
-			flag = 1;
+		if (a.di == di) return a.fee<fee;
+		return a.di<di;
 	}
+}now, nex;
+int maxx;
+int dis[110];
+vector<node> lin[110];
+priority_queue<node> q;
+int dj()
+{
+	q.push(node(1, 0, 0));
+	while (!q.empty())
+	{
+		now = q.top();
+
+		q.pop();
+		if (now.y == n) return now.di;
+		for (int i = 0; i<lin[now.y].size(); i++)
+		{
+
+			if (now.fee + lin[now.y][i].fee <= maxx)
+				q.push(node(lin[now.y][i].y, now.di + lin[now.y][i].di, now.fee + lin[now.y][i].fee));
+		}
+	}
+	return -1;
 }
 
 int main()
 {
-	scanf("%d", &_case);
-	for (int t = 1; t <= _case; t++)
+	scanf("%d%d%d", &maxx, &n, &m);
+	for (int i = 1; i <= m; i++)
 	{
-		flag = 0;
-		printf("Scenario #%d:\n", t);
-		scanf("%d%d", &bug, &action);
-		for (int i = 1; i <= bug; i++)
-		{
-			father[i] = i;
-			r[i] = 0;
-		}
-
-		while (action--)
-		{
-			scanf("%d%d", &a, &b);
-			if (flag == 0)
-				Union(a, b);
-		}
-
-		if (flag == 1)
-			printf("Suspicious bugs found!\n");
-		else
-			printf("No suspicious bugs found!\n");
-		printf("\n");
+		int aa, bb, cc, dd;
+		scanf("%d%d%d%d", &aa, &bb, &cc, &dd);
+		lin[aa].push_back(node(bb, cc, dd));
 	}
+	printf("%d\n", dj());
 	return 0;
 }
