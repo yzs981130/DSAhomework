@@ -1,56 +1,58 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <queue>
-#include <string>
-#include <cstdio>
 #include <algorithm>
 #include <cstring>
-#include <functional>
+#include <string>
+#include <cstdio>
+#define MAXN 50010
+#define INF 99999999
 using namespace std;
-#define MAXN 1010
-int d[MAXN];
-int p[MAXN];
-int find(int x)
+struct node
 {
-	while (x != p[x])
+	int w, fa, lch, rch;
+	char s[111];
+	bool operator <(const node& a)const
 	{
-		p[x] = p[p[x]];
-		x = p[x];
+		return strcmp(s, a.s) <= 0;
 	}
-	return x;
-}
-void unite(int x, int y)
+}p[MAXN];
+int n;
+void insert(int i)
 {
-	int fx = find(x);
-	int fy = find(y);
-	if (fx != fy)
-		p[fx] = fy;
+	int j = i - 1;
+	while (p[j].w < p[i].w) 
+		j = p[j].fa;
+	p[i].lch = p[j].rch;
+	p[j].rch = i;
+	p[i].fa = j;
+}
+void solve(int rt)
+{
+	if (rt == 0) 
+		return;
+	printf("(");
+	solve(p[rt].lch);
+	printf("%s/%d", p[rt].s, p[rt].w);
+	solve(p[rt].rch);
+	printf(")");
 }
 int main()
 {
-	int n, m, a, b;
-	while (cin >> n && n != 0)
+	char s[111], tmp[111];
+	while (scanf("%d", &n) != EOF && n)
 	{
-		memset(d, 0, sizeof(d));
-		for (int i = 0; i < n; i++)
-			p[i] = i;
-		cin >> m;
-		for (int i = 0; i < m; i++)
+		for (int i = 1; i <= n; i++)
 		{
-			cin >> a >> b;
-			unite(a, b);
-			d[a]++;
-			d[b]++;
+			scanf(" %[a-z]/%d", p[i].s, &p[i].w);
+			p[i].lch = p[i].rch = 0;
+			p[i].fa = 0;
 		}
-		bool ans = true;
-		for (int i = 0; i < n; i++)
-			if (d[i] % 2 || find(i) != find(0))
-			{
-				ans = false;
-				break;
-			}
-
-		cout << ans << endl;
+		sort(p + 1, p + n + 1);
+		p[0].w = INF;
+		p[0].lch = p[0].rch = p[0].fa = 0;
+		for (int i = 1; i <= n; i++) insert(i);
+		solve(p[0].rch);
+		printf("\n");
 	}
 	return 0;
 }
