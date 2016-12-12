@@ -1,107 +1,69 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
-#include <string>
-#include <map>
-#include <stack>
+#include <stdio.h>
 using namespace std;
 
-map<char, int> operatorPriority;
+int _case, bug, flag, action, a, b;
+int father[2100], r[2100];
 
-string Transform(const string& str) {
-	int len = str.length();
-	char rt[90];
-	int cnt = 0;
-	stack<char> oper;
-	for (int i = 0; i < len; ++i) {
-		if (str[i] == '-')
-			i = i;
-		if (str[i] == ' ')
-			continue;
-		else if (isalnum(str[i]))
-			rt[cnt++] = str[i];
-		else { /* is an operator */
-			switch (str[i])
-			{
-			case'(':
-				oper.push('(');
-				break;
-			case')':
-				while (oper.top() != '(') {
-					rt[cnt++] = oper.top();
-					oper.pop();
-				}
-				oper.pop();
-				break;
-				/* + - * operator */
-			default:
-				if (!oper.empty()) {
-					char top = oper.top();
-					if (operatorPriority[top] >= operatorPriority[str[i]]) {
-						rt[cnt++] = top;
-						oper.pop();
-					}
-				}
-				oper.push(str[i]);
-				break;
-			}
-		}
-	}
-	while (!oper.empty()) {
-		rt[cnt++] = oper.top();
-		oper.pop();
-	}
-	rt[cnt] = '\0';
-	return string(rt);
+int root(int x)
+{
+	int temp;
+	if (x == father[x])
+		return father[x];
+	temp = root(father[x]);
+	r[x] = (r[x] + r[father[x]]) % 2;
+	father[x] = temp;
+
+	return father[x];
 }
 
+void Union(int x, int y)
+{
+	int fx = root(x);
+	int fy = root(y);
 
-int Calculate(string r) {
-	int len = r.length(), a, b;
-	stack<int> cal;
-	for (int i = 0; i < len; ++i) {
-		if (isalnum(r[i])) {
-			if (isdigit(r[i]))
-				cal.push(r[i] - '0');
-			else
-				cal.push(r[i]);
-		}
-		else {
-			a = cal.top();
-			cal.pop();
-			b = cal.top();
-			cal.pop();
-			switch (r[i]) {
-			case '+':
-				cal.push(b + a);
-				break;
-			case '-':
-				cal.push(b - a);
-				break;
-			case '*':
-				cal.push(b * a);
-			}
-		}
-	}
-	return cal.top();
-}
+	if (fx != fy)
+	{
+		father[fx] = fy;
 
-int main() {
-
-	operatorPriority['+'] = 1;
-	operatorPriority['-'] = 1;
-	operatorPriority['*'] = 2;
-	operatorPriority['('] = 0;
-	int cases;
-	cin >> cases;
-	cin.get();
-	while (cases--) {
-		string exp1, exp2;
-		getline(cin, exp1);
-		getline(cin, exp2);
-		if (Calculate(Transform(exp1)) == Calculate(Transform(exp2)))
-			cout << "YES" << endl;
+		if (r[y] == 0)
+			r[fx] = 1 - r[x];
 		else
-			cout << "NO" << endl;
+			r[fx] = r[x];
+	}
+	else
+	{
+		if (r[x] == r[y])
+			flag = 1;
+	}
+}
+
+int main()
+{
+	scanf("%d", &_case);
+	for (int t = 1; t <= _case; t++)
+	{
+		flag = 0;
+		printf("Scenario #%d:\n", t);
+		scanf("%d%d", &bug, &action);
+		for (int i = 1; i <= bug; i++)
+		{
+			father[i] = i;
+			r[i] = 0;
+		}
+
+		while (action--)
+		{
+			scanf("%d%d", &a, &b);
+			if (flag == 0)
+				Union(a, b);
+		}
+
+		if (flag == 1)
+			printf("Suspicious bugs found!\n");
+		else
+			printf("No suspicious bugs found!\n");
+		printf("\n");
 	}
 	return 0;
 }
