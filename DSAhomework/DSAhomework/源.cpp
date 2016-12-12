@@ -1,50 +1,60 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include <algorithm>
-#include <stack>
-#include <vector>
-#include <cstdio>
-#include <cstring>
+#include<iostream>
+#include<algorithm>
+#include<cstdio>
+#include<cstring>
+#define lowbit(x) (x&(-x))
 using namespace std;
-#define MAXM 500010
-#define MAXN 100010
-vector<int>e[MAXN];
-int d[MAXN];
+const int MAX = 100010;
+
+struct Data
+{
+	int id, w;
+}num[MAX];
+int n, ar[MAX];
+
+bool cmp(Data a, Data b)
+{
+	return a.w > b.w;
+}
+
+void add(int i)
+{
+	while (i <= n)
+	{
+		ar[i] += 1;
+		i += lowbit(i);
+	}
+}
+
+long long sum(int i)
+{
+	long long ans = 0;
+	while (i)
+	{
+		ans += ar[i];
+		i -= lowbit(i);
+	}
+	return ans;
+}
+
 int main()
 {
-	int t;
-	cin >> t;
-	while (t--)
+	int i;
+	scanf("%d", &n);
+	memset(ar, 0, sizeof(ar));
+	for (i = 0; i < n; i++)
 	{
-		int n, m, x, y;
-		memset(e, 0, sizeof(e));
-		memset(d, 0, sizeof(d));
-		stack<int>s;
-		cin >> n >> m;
-		int cnt = 0;
-		for (int i = 1; i <= m; i++)
-		{
-			scanf("%d %d", &x, &y);
-			e[x].push_back(y);
-			d[y]++;
-		}
-		for (int i = 1; i <= n; i++)
-			if (!d[i])
-				s.push(i);
-		while (!s.empty())
-		{
-			int t = s.top();
-			s.pop();
-			cnt++;
-			for (int i = 0; i < e[t].size(); i++)
-			{
-				int r = e[t][i];
-				d[r]--;
-				if (!d[r])
-					s.push(r);
-			}
-		}
-		cout << ((cnt == n) ? "No" : "Yes") << endl;
+		num[i].id = i + 1;
+		scanf("%d", &num[i].w);
 	}
+	sort(num, num + n, cmp);
+	long long ans = 0;
+	for (i = 0; i < n; i++)
+	{
+		ans += sum(num[i].id - 1);
+		add(num[i].id);
+	}
+	printf("%lld\n", 1LL * n * (n - 1) / 2 - ans);
 	return 0;
 }
