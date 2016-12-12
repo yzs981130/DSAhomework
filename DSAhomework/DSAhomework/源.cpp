@@ -1,44 +1,53 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>    
 #include<string>
 #include<cstdio>
 using namespace std;
-#define MAXN 10010
-struct Node
+int c[200010];
+int f[200010];
+string a, b;
+int n, m, k;
+
+void getNext()
 {
-	int benefit;
-	int time;
-	bool valid;
-}nodes[MAXN];
+	for (int i = 1; i<m; ++i)
+	{
+		int j = f[i];
+		while (j && b[i] != b[j])
+			j = f[j];
+		f[i + 1] = (b[i] == b[j]) ? j + 1 : 0;
+	}
+}
+
+void find()
+{
+	int j = 0;
+	for (int i = 0; i < n; ++i)
+	{
+		while (j && a[i] != b[j])
+			j = f[j];
+		if (a[i] == b[j])
+			j++;
+		c[j]++;
+	}
+}
+
 int main()
 {
-	int n, maxt = 0, ans = 0;
-	cin >> n;
-	for (int i = 0; i < n; i++)
+	cin.tie(0);
+	ios::sync_with_stdio(false);
+	cin >> n >> m >> k;
+	cin >> a >> b;
+	getNext();
+	find();
+	for (int i = m; i > 0; --i)
+		c[f[i]] += c[i];
+	for (int i = 0; i <= m; ++i)
+		c[i] -= c[i + 1];
+	for (int i = 1; i <= k; ++i)
 	{
-		scanf("%d %d", &nodes[i].benefit, &nodes[i].time);
-		nodes[i].valid = true;
-		if (nodes[i].time > maxt)
-			maxt = nodes[i].time;
+		int r;
+		cin >> r;
+		cout << c[r] << endl;
 	}
-	for (int i = maxt; i > 0; i--)
-	{
-		int maxV = 0, maxI = 0;
-		bool flag = false;
-		for(int j = 0; j < n; j++)
-			if (nodes[j].time >= i && nodes[j].valid && nodes[j].benefit > maxV)
-			{
-				maxV = nodes[j].benefit;
-				maxI = j;
-				flag = true;
-			}
-		if (flag)
-		{
-			ans += nodes[maxI].benefit;
-			nodes[maxI].valid = 0;
-		}
-	}
-	cout << ans << endl;
-	system("pause");
 	return 0;
 }
