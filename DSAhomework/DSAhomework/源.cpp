@@ -1,113 +1,90 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include <algorithm>
-#include <cstring>
-#include <string>
-#include <functional>
-#include <queue>
-#include <cstdio>
-#define MAXN 50010
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
+#include<ctime>
 using namespace std;
-int a[MAXN];
-priority_queue<int, vector<int> >big;
-priority_queue<int, vector<int>, greater<int> >small;
-int cnt = 0;
-struct Node
+struct data 
 {
-	int v, w;
-	int s;
-	Node *son[2];
-	void Resize()
-	{
-		s = 1;
-		if (son[0])
-			s += son[0]->s;
-		if (son[1])
-			s += son[1]->s;
-	}
-}nodes[MAXN];
-void Rotate(Node *&p, int d)
+	int l, r, num, rnd, s;
+}tr[100001];
+int n, mn;
+int root, Size, leave, delta;
+void update(int k) { tr[k].s = tr[tr[k].l].s + tr[tr[k].r].s + 1; }
+void rturn(int &k)
 {
-	Node *u = p->son[d];
-	p->son[d] = u->son[d ^ 1];
-	u->son[d ^ 1] = p;
-	p->Resize();
-	u->Resize();
-	p = u;
+	int t = tr[k].l;
+	tr[k].l = tr[t].r;
+	tr[t].r = k;
+	tr[t].s = tr[k].s;
+	update(k);
+	k = t;
 }
-void Insert(Node *&p, int v)
+void lturn(int &k)
 {
-	if (p == NULL)
+	int t = tr[k].r;
+	tr[k].r = tr[t].l;
+	tr[t].l = k;
+	tr[t].s = tr[k].s;
+	update(k);
+	k = t;
+}
+void insert(int &k, int x)
+{
+	if (k == 0)
 	{
-		nodes[cnt].s = 1;
-		nodes[cnt].son[0] = NULL;
-		nodes[cnt].son[1] = NULL;
-		nodes[cnt].v = v;
-		nodes[cnt].w = rand();
-		p = &nodes[cnt];
-		cnt++;
+		Size++; k = Size;
+		tr[k].rnd = rand();
+		tr[k].num = x;
+		tr[k].s = 1;
+		return;
+	}
+	tr[k].s++;
+	if (x<tr[k].num)
+	{
+		insert(tr[k].l, x);
+		if (tr[tr[k].l].rnd<tr[k].rnd)rturn(k);
 	}
 	else
 	{
-		int d = (v > p->v) ? 1 : 0;
-		Insert(p->son[d], v);
-		if (p->son[d]->w > p->w)
-			Rotate(p, d);
+		insert(tr[k].r, x);
+		if (tr[tr[k].r].rnd<tr[k].rnd)lturn(k);
 	}
-	p->Resize();
 }
-void Remove(Node *&p, int v)
+int del(int &k, int x)
 {
-	if (p->v == v)
+	int t;
+	if (k == 0)return 0;
+	if (tr[k].num<x)
 	{
-		if (p->son[0] && p->son[1])
-		{
-			int d = (p->son[0]->w < p->son[1]->w) ? 1 : 0;
-			Rotate(p, d);
-			Remove(p->son[d ^ 1], v);
-		}
-		else
-		{
-			Node *u = p;
-			if (p->son[0] == NULL)
-				p = p->son[1];
-			else
-				p = p->son[0];
-			delete u;
-		}
+		t = tr[tr[k].l].s + 1; k = tr[k].r; return t + del(k, x);
 	}
-	else
-		Remove(p->son[v > p->v], v);
-	if (p)
-		p->Resize();
+	else { t = del(tr[k].l, x); tr[k].s -= t; return t; }
 }
-int Find(Node *p, int v)
+int find(int k, int x)
 {
-	int ls = (p->son[0]) ? p->son[0]->s : 0;
-	if (v == ls + 1)
-		return p->v;
-	else if (v < ls + 1)
-		return Find(p->son[0], v);
-	else
-		return Find(p->son[1], v - ls - 1);
+	if (tr[tr[k].l].s + 1 == x)return tr[k].num + delta;
+	else if (tr[tr[k].l].s + 1<x)return find(tr[k].r, x - tr[tr[k].l].s - 1);
+	else return find(tr[k].l, x);
 }
 int main()
 {
-	int n, m;
-	scanf("%d %d", &n, &m);
-	for (int i = 0; i < n; i++)
-		scanf("%d", &a[i]);
-	Node *root = NULL;
-	int j = 0;
-	for (int i = 0; i < m; i++)
+	scanf("%d%d", &n, &mn);
+	char ch; int x;
+	while (n--)
 	{
-		int t;
-		scanf("%d", &t);
-		for (; j < t; j++)
-			Insert(root, a[j]);
-		int ans = Find(root, i + 1);
-		printf("%d\n", ans);
+		scanf("%c %d\n", &ch, &x);
+		if (ch == 'I')if (x >= mn)insert(root, x - delta);
+		if (ch == 'A')delta += x;
+		if (ch == 'S') { delta -= x; leave += del(root, mn - delta); }
+		if (ch == 'F')
+		{
+			if (x>tr[root].s)printf("-1");
+			else printf("%d", find(root, tr[root].s - x + 1));
+			printf("\n");
+		}
 	}
+	printf("%d", leave);
 	system("pause");
 	return 0;
 }
