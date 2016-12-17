@@ -1,90 +1,88 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<iostream>
-#include<cstdio>
-#include<cstdlib>
-#include<ctime>
+#include <stdlib.h>  
+#include <stdio.h>  
+#include <string.h>  
+#include <iostream>  
+#define MAX 1200  
 using namespace std;
-struct data 
+bool map[MAX][MAX], used[MAX];
+int mat[MAX];
+int p[MAX][MAX];
+int dir[8] = { 1,0,-1,0,0,1,0,-1 };
+void BFS(int n, int m)
 {
-	int l, r, num, rnd, s;
-}tr[100001];
-int n, mn;
-int root, Size, leave, delta;
-void update(int k) { tr[k].s = tr[tr[k].l].s + tr[tr[k].r].s + 1; }
-void rturn(int &k)
-{
-	int t = tr[k].l;
-	tr[k].l = tr[t].r;
-	tr[t].r = k;
-	tr[t].s = tr[k].s;
-	update(k);
-	k = t;
+	int i, k, q;
+	for (i = 1; i <= n; i++)
+		for (k = 1; k <= m; k++)
+		{
+			if (p[i][k] == -1)
+				continue;
+			for (q = 0; q < 8; q += 2)
+			{
+				int a = i + dir[q];
+				int b = k + dir[q + 1];
+				if (p[a][b] != -1 && a >= 1 && b <= m && a <= n && b >= 1)
+					map[p[i][k]][p[a][b]] = true;
+			}
+		}
 }
-void lturn(int &k)
+int Augment(int x, int n)
 {
-	int t = tr[k].r;
-	tr[k].r = tr[t].l;
-	tr[t].l = k;
-	tr[t].s = tr[k].s;
-	update(k);
-	k = t;
+	int i;
+	for (i = 1; i <= n; i++)
+		if (!used[i] && map[x][i])
+		{
+			used[i] = true;
+			if (!mat[i] || Augment(mat[i], n))
+			{
+				mat[i] = x;
+				return 1;
+			}
+		}
+	return 0;
 }
-void insert(int &k, int x)
+int Hungary(int n, int m)
 {
-	if (k == 0)
+	int i, sum = 0;
+	memset(mat, 0, sizeof(mat));
+	for (i = 1; i <= n; i++)
 	{
-		Size++; k = Size;
-		tr[k].rnd = rand();
-		tr[k].num = x;
-		tr[k].s = 1;
-		return;
+		memset(used, false, sizeof(used));
+		if (Augment(i, m))
+			sum++;
 	}
-	tr[k].s++;
-	if (x<tr[k].num)
-	{
-		insert(tr[k].l, x);
-		if (tr[tr[k].l].rnd<tr[k].rnd)rturn(k);
-	}
-	else
-	{
-		insert(tr[k].r, x);
-		if (tr[tr[k].r].rnd<tr[k].rnd)lturn(k);
-	}
-}
-int del(int &k, int x)
-{
-	int t;
-	if (k == 0)return 0;
-	if (tr[k].num<x)
-	{
-		t = tr[tr[k].l].s + 1; k = tr[k].r; return t + del(k, x);
-	}
-	else { t = del(tr[k].l, x); tr[k].s -= t; return t; }
-}
-int find(int k, int x)
-{
-	if (tr[tr[k].l].s + 1 == x)return tr[k].num + delta;
-	else if (tr[tr[k].l].s + 1<x)return find(tr[k].r, x - tr[tr[k].l].s - 1);
-	else return find(tr[k].l, x);
+	return sum;
 }
 int main()
 {
-	scanf("%d%d", &n, &mn);
-	char ch; int x;
-	while (n--)
+	int n, m, k, i, x, y, tmp;
+	while (~scanf("%d%d%d", &n, &m, &k))
 	{
-		scanf("%c %d\n", &ch, &x);
-		if (ch == 'I')if (x >= mn)insert(root, x - delta);
-		if (ch == 'A')delta += x;
-		if (ch == 'S') { delta -= x; leave += del(root, mn - delta); }
-		if (ch == 'F')
+		memset(p, 0, sizeof(p));
+		memset(map, false, sizeof(map));
+		tmp = k;
+		for (i = 1; i <= k; i++)
 		{
-			if (x>tr[root].s)printf("-1");
-			else printf("%d", find(root, tr[root].s - x + 1));
-			printf("\n");
+			scanf("%d%d", &x, &y);
+			p[y][x] = -1;
 		}
+		if (n*m % 2 != k % 2)
+		{
+			printf("NO\n");
+			continue;
+		}
+
+		int ind = 1;
+		for (i = 1; i <= n; i++)
+			for (k = 1; k <= m; k++)
+				if (p[i][k] == 0)
+					p[i][k] = ind++;
+		BFS(n, m);
+		int ans = Hungary(ind - 1, ind - 1);
+		if (ans / 2 == (n*m - tmp) / 2)
+			printf("YES\n");
+		else
+			printf("NO\n");
 	}
-	printf("%d", leave);
-	system("pause");
 	return 0;
 }
