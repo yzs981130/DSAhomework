@@ -1,55 +1,71 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<iostream>
-#include<cstdio>
-#include<cstring>
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include <cstring>
 using namespace std;
-#define maxn 205
-int graph[maxn][maxn];
-int match[maxn];
-int book[maxn];
-int n, m, k;
+#define MAXN 205
+int graph[MAXN][MAXN];
+int match[MAXN];
+int book[MAXN];
+int n, m, p;
+vector<int>e[MAXN];
 bool dfs(int u) 
 {
-	for (int i = 1; i <= n; i++) 
+	for (int i = 0; i < e[u].size(); i++)
 	{
-		if (book[i] == 0 && graph[i][u] == 1) 
+		int v = e[u][i];
+		if (!book[v])
 		{
-			book[i] = 1;
-			if (match[i] == 0 || dfs(match[i])) 
+			book[v] = true;
+			if (match[v] == 0 || dfs(match[v]))
 			{
-				match[i] = u;
-				return 1;
+				match[v] = u;
+				return true;
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 int main() 
 {
-	int cnt = 0;
-	while (scanf("%d %d", &m, &n) != EOF) 
+	int t;
+	scanf("%d", &t);
+	while (t--) 
 	{
-		memset(graph, 0, sizeof(graph));
+		scanf("%d %d", &p, &n);
+		if (p > n)
+		{
+			printf("NO\n");
+			continue;
+		}
 		memset(match, 0, sizeof(match));
-		
+		memset(e, 0, sizeof(e));
 		int s, k;
-		for (int i = 1; i <= m; i++) 
+		for (int i = 1; i <= p; i++) 
 		{
 			scanf("%d", &s);
 			for (int j = 0; j < s; j++)
 			{
 				scanf("%d", &k);
-				graph[i][k] = 1;
+				e[i].push_back(k);
 			}
 		}
-		int sum = 0;
-		for (int i = 1; i <= m; i++) 
+		bool ans = true;
+		for (int i = 1; i <= p; i++) 
 		{
 			memset(book, 0, sizeof(book));
-			if (dfs(i))
-				sum++;
+			if (!dfs(i))
+			{
+				ans = false;
+				break;
+			}
 		}
-		printf("%d\n", sum);
+		if (ans)
+			printf("YES\n");
+		else
+			printf("NO\n");
 	}
+	system("pause");
 	return 0;
 }
