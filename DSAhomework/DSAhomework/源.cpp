@@ -1,70 +1,45 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <cstring>
 #include <cstdio>
 #include <vector>
-#include <cstring>
+#include <string>
+#include <map>
+#include <iterator>
+#include <set>
+#include <algorithm>
 using namespace std;
-#define MAXN 205
-int graph[MAXN][MAXN];
-int match[MAXN];
-int book[MAXN];
-int n, m, p;
-vector<int>e[MAXN];
-bool dfs(int u) 
+const int MAXN = 1200;
+map<string, set<int> > dic;
+int main()
 {
-	for (int i = 0; i < e[u].size(); i++)
+	int n, m, c;
+	string s;
+	cin >> n;
+	for(int i = 1; i <= n; i++)
 	{
-		int v = e[u][i];
-		if (!book[v])
+		cin >> c;
+		for (int j = 0; j < c; j++)
 		{
-			book[v] = true;
-			if (match[v] == 0 || dfs(match[v]))
-			{
-				match[v] = u;
-				return true;
-			}
+			cin >> s;
+			set<int> tmp = dic[s];
+			tmp.insert(i);
+			dic[s] = tmp;
 		}
 	}
-	return false;
-}
-int main() 
-{
-	int t;
-	scanf("%d", &t);
-	while (t--) 
+	cin >> m;
+	for (int i = 0; i < m; i++)
 	{
-		scanf("%d %d", &p, &n);
-		if (p > n)
+		cin >> s;
+		set<int>ans = dic[s];
+		if (!ans.empty())
 		{
-			printf("NO\n");
-			continue;
+			set<int>::iterator itr = ans.begin();
+			for (; itr != ans.end(); ++itr)
+				cout << (*itr) << ' ';
 		}
-		memset(match, 0, sizeof(match));
-		memset(e, 0, sizeof(e));
-		int s, k;
-		for (int i = 1; i <= p; i++) 
-		{
-			scanf("%d", &s);
-			for (int j = 0; j < s; j++)
-			{
-				scanf("%d", &k);
-				e[i].push_back(k);
-			}
-		}
-		bool ans = true;
-		for (int i = 1; i <= p; i++) 
-		{
-			memset(book, 0, sizeof(book));
-			if (!dfs(i))
-			{
-				ans = false;
-				break;
-			}
-		}
-		if (ans)
-			printf("YES\n");
 		else
-			printf("NO\n");
+			cout << "NOT FOUND";
+		cout << endl;
 	}
 	system("pause");
 	return 0;
