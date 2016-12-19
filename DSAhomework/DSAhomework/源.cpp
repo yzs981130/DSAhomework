@@ -1,44 +1,90 @@
-#include <iostream>
-#include <cstring>
-#include <cstdio>
-#include <vector>
-#include <string>
-#include <map>
-#include <iterator>
 #include <set>
-#include <algorithm>
+#include <vector>
+#include <iostream>
+#include <map>
 using namespace std;
-const int MAXN = 1200;
-map<string, set<int> > dic;
 int main()
 {
-	int n, m, c;
-	string s;
-	cin >> n;
-	for(int i = 1; i <= n; i++)
+	vector<set<int> > ivec;
+	int N = 0;
+	cin >> N;
+	int i = 0;
+	while (i < N) 
 	{
-		cin >> c;
-		for (int j = 0; j < c; j++)
+		set<int> iset;
+		int num = 0;
+		cin >> num;
+		int j = 0;
+		int docnum = 0;
+		while (j < num) 
 		{
-			cin >> s;
-			set<int> tmp = dic[s];
-			tmp.insert(i);
-			dic[s] = tmp;
+			cin >> docnum;
+			iset.insert(docnum);
+			++j;
 		}
+		ivec.push_back(iset);
+		++i;
 	}
-	cin >> m;
-	for (int i = 0; i < m; i++)
+
+	int M = 0;
+	cin >> M;
+	map<int, vector<int> > imap;
+	i = 0;
+	while (i < M) 
 	{
-		cin >> s;
-		set<int>ans = dic[s];
-		if (!ans.empty())
+		int p = 0;
+		int j = 0;
+		vector<int> jvec;
+		while (j < N) 
 		{
-			set<int>::iterator itr = ans.begin();
-			for (; itr != ans.end(); ++itr)
-				cout << (*itr) << ' ';
+			cin >> p;
+			jvec.push_back(p);
+			++j;
 		}
-		else
-			cout << "NOT FOUND";
+		imap[i] = jvec;
+		++i;
+	}
+
+	for (int x = 0; x < imap.size(); ++x) 
+	{
+		set<int> iresult;
+		vector<int> &xvector = imap[x];
+		int xx = 0;
+		for (vector<int>::iterator vec_it = xvector.begin(); vec_it != xvector.end(); ++vec_it, ++xx) 
+		{
+			if (*vec_it == 0 || *vec_it == -1)
+				continue;
+			if (iresult.empty())
+				iresult.insert(ivec[xx].begin(), ivec[xx].end());
+			else 
+			{
+				set<int> iresult2;
+				for (set<int>::iterator set_it = ivec[xx].begin(); set_it != ivec[xx].end(); set_it++)
+					if (iresult.find(*set_it) != iresult.end())
+						iresult2.insert(*set_it);
+				iresult = iresult2;
+				if (iresult2.empty())
+					break;
+			}
+		}
+
+		xx = 0;
+		for (vector<int>::iterator vec_it = xvector.begin(); vec_it != xvector.end(); ++vec_it, ++xx) 
+		{
+			if (*vec_it == 0 || *vec_it == 1)
+				continue;
+			for (set<int>::iterator set_it = ivec[xx].begin(); set_it != ivec[xx].end(); set_it++)
+				iresult.erase(*set_it);
+		}
+
+		if (iresult.size() < 1) 
+		{
+			cout << "NOT FOUND" << endl;
+			continue;
+		}
+
+		for (set<int>::iterator set_it = iresult.begin(); set_it != iresult.end(); set_it++) 
+			cout << *set_it << ' ';
 		cout << endl;
 	}
 	system("pause");
